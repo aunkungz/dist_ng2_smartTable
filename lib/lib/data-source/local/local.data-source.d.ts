@@ -45,6 +45,7 @@ export declare class LocalDataSource extends DataSource {
     addFilter(fieldConf: any, andOperator?: boolean, doEmit?: boolean): LocalDataSource;
     setPaging(page: number, perPage: number, doEmit?: boolean): LocalDataSource;
     setPage(page: number, doEmit?: boolean): LocalDataSource;
+    setPaginateSize(page: number, doEmit: boolean, paginateSize: number): LocalDataSource;
     getSort(): any;
     getFilter(): any;
     getPaging(): any;

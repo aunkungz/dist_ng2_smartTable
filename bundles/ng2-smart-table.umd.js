@@ -1577,7 +1577,7 @@
         PagerComponent.prototype.initPages = function () {
             var pagesCount = this.getLast();
             console.log(this.paginateSize);
-            var showPagesCount = this.paginateSizes;
+            var showPagesCount = this.paginateSizes == undefined ? this.paginateSizes : this.paginateSize;
             console.log(showPagesCount);
             showPagesCount = pagesCount < showPagesCount ? pagesCount : showPagesCount;
             this.pages = [];
@@ -2566,6 +2566,13 @@
             _super.prototype.setPage.call(this, page, doEmit);
             return this;
         };
+        LocalDataSource.prototype.setPaginateSize = function (page, doEmit, paginateSize) {
+            if (doEmit === void 0) { doEmit = true; }
+            this.pagingConf['page'] = page;
+            this.pagingConf['paginateSize'] = paginateSize;
+            _super.prototype.setPage.call(this, page, doEmit);
+            return this;
+        };
         LocalDataSource.prototype.getSort = function () {
             return this.sortConf;
         };
@@ -2573,7 +2580,6 @@
             return this.filterConf;
         };
         LocalDataSource.prototype.getPaging = function () {
-            console.log(this.pagingConf);
             return this.pagingConf;
         };
         LocalDataSource.prototype.prepareData = function (data) {
@@ -2845,7 +2851,7 @@
         Ng2SmartTableComponent = __decorate([
             core.Component({
                 selector: 'ng2-smart-table',
-                template: "<table [id]=\"tableId\" [ngClass]=\"tableClass\">\n\n  <thead ng2-st-thead *ngIf=\"!isHideHeader || !isHideSubHeader\"\n                      [grid]=\"grid\"\n                      [isAllSelected]=\"isAllSelected\"\n                      [source]=\"source\"\n                      [createConfirm]=\"createConfirm\"\n                      (create)=\"create.emit($event)\"\n                      (selectAllRows)=\"onSelectAllRows($event)\"\n                      (sort)=\"sort($event)\"\n                      (filter)=\"filter($event)\">\n  </thead>\n\n  <tbody ng2-st-tbody [grid]=\"grid\"\n                      [source]=\"source\"\n                      [deleteConfirm]=\"deleteConfirm\"\n                      [editConfirm]=\"editConfirm\"\n                      [rowClassFunction]=\"rowClassFunction\"\n                      (edit)=\"edit.emit($event)\"\n                      (delete)=\"delete.emit($event)\"\n                      (custom)=\"custom.emit($event)\"\n                      (userSelectRow)=\"onUserSelectRow($event)\"\n                      (editRowSelect)=\"editRowSelect($event)\"\n                      (multipleSelectRow)=\"multipleSelectRow($event)\"\n                      (rowHover)=\"onRowHover($event)\">\n  </tbody>\n\n</table>\n\n<ng2-smart-table-pager *ngIf=\"isPagerDisplay\"\n                        [source]=\"source\"\n                        [perPageSelect]=\"perPageSelect\"\n                        [paginateSize]=\"this.paginateSize\"\n                        (changePage)=\"changePage($event)\">\n</ng2-smart-table-pager>\n",
+                template: "<table [id]=\"tableId\" [ngClass]=\"tableClass\">\n\n  <thead ng2-st-thead *ngIf=\"!isHideHeader || !isHideSubHeader\"\n                      [grid]=\"grid\"\n                      [isAllSelected]=\"isAllSelected\"\n                      [source]=\"source\"\n                      [createConfirm]=\"createConfirm\"\n                      (create)=\"create.emit($event)\"\n                      (selectAllRows)=\"onSelectAllRows($event)\"\n                      (sort)=\"sort($event)\"\n                      (filter)=\"filter($event)\">\n  </thead>\n\n  <tbody ng2-st-tbody [grid]=\"grid\"\n                      [source]=\"source\"\n                      [deleteConfirm]=\"deleteConfirm\"\n                      [editConfirm]=\"editConfirm\"\n                      [rowClassFunction]=\"rowClassFunction\"\n                      (edit)=\"edit.emit($event)\"\n                      (delete)=\"delete.emit($event)\"\n                      (custom)=\"custom.emit($event)\"\n                      (userSelectRow)=\"onUserSelectRow($event)\"\n                      (editRowSelect)=\"editRowSelect($event)\"\n                      (multipleSelectRow)=\"multipleSelectRow($event)\"\n                      (rowHover)=\"onRowHover($event)\">\n  </tbody>\n\n</table>\n\n<ng2-smart-table-pager *ngIf=\"isPagerDisplay\"\n                        [source]=\"source\"\n                        [perPageSelect]=\"perPageSelect\"\n                        [paginateSize]=\"paginateSize\"\n                        (changePage)=\"changePage($event)\">\n</ng2-smart-table-pager>\n",
                 styles: [":host{font-size:1rem}:host ::ng-deep *{box-sizing:border-box}:host ::ng-deep button,:host ::ng-deep input,:host ::ng-deep optgroup,:host ::ng-deep select,:host ::ng-deep textarea{color:inherit;font:inherit;margin:0}:host ::ng-deep table{line-height:1.5em;border-collapse:collapse;border-spacing:0;display:table;width:100%;max-width:100%;overflow:auto;word-break:normal;word-break:keep-all}:host ::ng-deep table tr th{font-weight:700}:host ::ng-deep table tr section{font-size:.75em;font-weight:700}:host ::ng-deep table tr td,:host ::ng-deep table tr th{font-size:.875em;margin:0;padding:.5em 1em}:host ::ng-deep a{color:#1e6bb8;text-decoration:none}:host ::ng-deep a:hover{text-decoration:underline}"]
             })
         ], Ng2SmartTableComponent);
