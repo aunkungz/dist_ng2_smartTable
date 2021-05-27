@@ -1599,7 +1599,10 @@ let PagerComponent = class PagerComponent {
     initPages() {
         const pagesCount = this.getLast();
         console.log(this.paginateSize);
-        let showPagesCount = this.paginateSizes == undefined ? this.paginateSizes : this.paginateSize;
+        let aaa = this.paginateSize["pager"]["paginateSize"];
+        console.log(aaa);
+        // let showPagesCount = this.paginateSizes == undefined ? this.paginateSizes : this.paginateSize;
+        let showPagesCount = this.paginateSize["pager"]["paginateSize"];
         console.log(showPagesCount);
         showPagesCount = pagesCount < showPagesCount ? pagesCount : showPagesCount;
         this.pages = [];
