@@ -22,6 +22,7 @@ export declare class Ng2SmartTableComponent implements OnChanges {
     isHideSubHeader: boolean;
     isPagerDisplay: boolean;
     rowClassFunction: Function;
+    paginateSize: number;
     grid: Grid;
     defaultSettings: Object;
     isAllSelected: boolean;

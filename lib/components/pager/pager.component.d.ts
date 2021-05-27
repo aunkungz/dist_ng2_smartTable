@@ -4,13 +4,14 @@ import { DataSource } from '../../lib/data-source/data-source';
 export declare class PagerComponent implements OnChanges {
     source: DataSource;
     perPageSelect: any[];
+    paginateSize: number;
     changePage: EventEmitter<any>;
     currentPerPage: any;
     protected pages: Array<any>;
     protected page: number;
     protected count: number;
     protected perPage: number;
-    protected paginateSize: number;
+    protected paginateSizes: number;
     protected dataChangedSub: Subscription;
     ngOnChanges(changes: SimpleChanges): void;
     /**
