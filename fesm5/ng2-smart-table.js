@@ -1517,6 +1517,7 @@ var PagerComponent = /** @class */ (function () {
     };
     PagerComponent.prototype.initPages = function () {
         var pagesCount = this.getLast();
+        console.log(this.paginateSize);
         var showPagesCount = this.paginateSizes;
         console.log(showPagesCount);
         showPagesCount = pagesCount < showPagesCount ? pagesCount : showPagesCount;
