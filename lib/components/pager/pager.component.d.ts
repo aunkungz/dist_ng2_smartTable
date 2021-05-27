@@ -11,7 +11,6 @@ export declare class PagerComponent implements OnChanges {
     protected page: number;
     protected count: number;
     protected perPage: number;
-    protected paginateSizes: number;
     protected dataChangedSub: Subscription;
     ngOnChanges(changes: SimpleChanges): void;
     /**

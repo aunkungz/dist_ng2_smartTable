@@ -1544,7 +1544,7 @@ let PagerComponent = class PagerComponent {
             this.dataChangedSub = this.source.onChanged().subscribe((dataChanges) => {
                 this.page = this.source.getPaging().page;
                 this.perPage = this.source.getPaging().perPage;
-                this.paginateSizes = this.source.getPaging().paginateSize;
+                // this.paginateSizes = this.source.getPaging().paginateSize;
                 this.currentPerPage = this.perPage;
                 this.count = this.source.count();
                 if (this.isPageOutOfBounce()) {
@@ -1598,12 +1598,9 @@ let PagerComponent = class PagerComponent {
     }
     initPages() {
         const pagesCount = this.getLast();
-        console.log(this.paginateSize);
-        let aaa = this.paginateSize["pager"]["paginateSize"];
-        console.log(aaa);
+        // let aaa = this.paginateSize["pager"]["paginateSize"]
         // let showPagesCount = this.paginateSizes == undefined ? this.paginateSizes : this.paginateSize;
         let showPagesCount = this.paginateSize["pager"]["paginateSize"];
-        console.log(showPagesCount);
         showPagesCount = pagesCount < showPagesCount ? pagesCount : showPagesCount;
         this.pages = [];
         if (this.shouldShow()) {

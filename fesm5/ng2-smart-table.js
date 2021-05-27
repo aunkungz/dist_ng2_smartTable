@@ -1463,7 +1463,7 @@ var PagerComponent = /** @class */ (function () {
             this.dataChangedSub = this.source.onChanged().subscribe(function (dataChanges) {
                 _this.page = _this.source.getPaging().page;
                 _this.perPage = _this.source.getPaging().perPage;
-                _this.paginateSizes = _this.source.getPaging().paginateSize;
+                // this.paginateSizes = this.source.getPaging().paginateSize;
                 _this.currentPerPage = _this.perPage;
                 _this.count = _this.source.count();
                 if (_this.isPageOutOfBounce()) {
@@ -1517,12 +1517,9 @@ var PagerComponent = /** @class */ (function () {
     };
     PagerComponent.prototype.initPages = function () {
         var pagesCount = this.getLast();
-        console.log(this.paginateSize);
-        var aaa = this.paginateSize["pager"]["paginateSize"];
-        console.log(aaa);
+        // let aaa = this.paginateSize["pager"]["paginateSize"]
         // let showPagesCount = this.paginateSizes == undefined ? this.paginateSizes : this.paginateSize;
         var showPagesCount = this.paginateSize["pager"]["paginateSize"];
-        console.log(showPagesCount);
         showPagesCount = pagesCount < showPagesCount ? pagesCount : showPagesCount;
         this.pages = [];
         if (this.shouldShow()) {
