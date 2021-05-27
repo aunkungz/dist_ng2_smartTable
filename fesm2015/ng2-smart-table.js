@@ -1544,6 +1544,7 @@ let PagerComponent = class PagerComponent {
             this.dataChangedSub = this.source.onChanged().subscribe((dataChanges) => {
                 this.page = this.source.getPaging().page;
                 this.perPage = this.source.getPaging().perPage;
+                this.paginateSize = this.source.getPaging().paginateSize;
                 this.currentPerPage = this.perPage;
                 this.count = this.source.count();
                 if (this.isPageOutOfBounce()) {
@@ -1597,7 +1598,7 @@ let PagerComponent = class PagerComponent {
     }
     initPages() {
         const pagesCount = this.getLast();
-        let showPagesCount = 10;
+        let showPagesCount = this.paginateSize;
         showPagesCount = pagesCount < showPagesCount ? pagesCount : showPagesCount;
         this.pages = [];
         if (this.shouldShow()) {
@@ -2791,6 +2792,7 @@ let Ng2SmartTableComponent = class Ng2SmartTableComponent {
             pager: {
                 display: true,
                 perPage: 10,
+                paginateSize: 4,
             },
             rowClassFunction: () => ""
         };

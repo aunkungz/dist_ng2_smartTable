@@ -1522,6 +1522,7 @@
                 this.dataChangedSub = this.source.onChanged().subscribe(function (dataChanges) {
                     _this.page = _this.source.getPaging().page;
                     _this.perPage = _this.source.getPaging().perPage;
+                    _this.paginateSize = _this.source.getPaging().paginateSize;
                     _this.currentPerPage = _this.perPage;
                     _this.count = _this.source.count();
                     if (_this.isPageOutOfBounce()) {
@@ -1575,7 +1576,7 @@
         };
         PagerComponent.prototype.initPages = function () {
             var pagesCount = this.getLast();
-            var showPagesCount = 10;
+            var showPagesCount = this.paginateSize;
             showPagesCount = pagesCount < showPagesCount ? pagesCount : showPagesCount;
             this.pages = [];
             if (this.shouldShow()) {
@@ -2675,6 +2676,7 @@
                 pager: {
                     display: true,
                     perPage: 10,
+                    paginateSize: 4,
                 },
                 rowClassFunction: function () { return ""; }
             };
