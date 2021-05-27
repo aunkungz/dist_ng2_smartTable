@@ -2568,6 +2568,7 @@
             return this.filterConf;
         };
         LocalDataSource.prototype.getPaging = function () {
+            console.log(this.pagingConf);
             return this.pagingConf;
         };
         LocalDataSource.prototype.prepareData = function (data) {

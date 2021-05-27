@@ -2685,6 +2685,7 @@ class LocalDataSource extends DataSource {
         return this.filterConf;
     }
     getPaging() {
+        console.log(this.pagingConf);
         return this.pagingConf;
     }
     prepareData(data) {
