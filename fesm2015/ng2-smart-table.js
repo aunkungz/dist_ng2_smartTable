@@ -1,10 +1,11 @@
-import { EventEmitter, Component, Input, Output, ComponentFactoryResolver, ViewChild, ViewContainerRef, ChangeDetectionStrategy, NgModule, ElementRef } from '@angular/core';
+import { __decorate, __metadata } from 'tslib';
+import { EventEmitter, Input, Output, Component, ViewChild, ViewContainerRef, ComponentFactoryResolver, ChangeDetectionStrategy, NgModule, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, FormControl, NgControl, ReactiveFormsModule } from '@angular/forms';
 import { CompleterService, Ng2CompleterModule } from 'ng2-completer';
 import { Subject } from 'rxjs';
 import { cloneDeep } from 'lodash';
-import { debounceTime, map, distinctUntilChanged, skip, takeUntil } from 'rxjs/operators';
+import { debounceTime, map, distinctUntilChanged, skip } from 'rxjs/operators';
 import { HttpParams } from '@angular/common/http';
 
 /**
@@ -85,10 +86,6 @@ function getDeepFromObject(object = {}, name, defaultValue) {
         }
     });
     return typeof level === 'undefined' ? defaultValue : level;
-}
-function getPageForRowIndex(index, perPage) {
-    // we need to add 1 to convert 0-based index to 1-based page number.
-    return Math.floor(index / perPage) + 1;
 }
 
 function prepareValue(value) { return value; }
@@ -186,7 +183,6 @@ class Column {
         this.type = '';
         this.class = '';
         this.width = '';
-        this.hide = false;
         this.isSortable = false;
         this.isEditable = true;
         this.isAddable = true;
@@ -223,7 +219,6 @@ class Column {
         this.title = this.settings['title'];
         this.class = this.settings['class'];
         this.width = this.settings['width'];
-        this.hide = !!this.settings['hide'];
         this.type = this.prepareType();
         this.editor = this.settings['editor'];
         this.filter = this.settings['filter'];
@@ -258,6 +253,7 @@ class DataSet {
         this.data = [];
         this.columns = [];
         this.rows = [];
+        this.willSelect = 'first';
         this.createColumns(columnSettings);
         this.setData(data);
         this.createNewRow();
@@ -285,8 +281,6 @@ class DataSet {
         this.rows.forEach((row) => {
             row.isSelected = false;
         });
-        // we need to clear selectedRow field because no one row selected
-        this.selectedRow = undefined;
     }
     selectRow(row) {
         const previousIsSelected = row.isSelected;
@@ -322,29 +316,13 @@ class DataSet {
             return this.selectedRow;
         }
     }
-    selectRowByIndex(index) {
-        const rowsLength = this.rows.length;
-        if (rowsLength === 0) {
-            return;
-        }
-        if (!index) {
-            this.selectFirstRow();
-            return this.selectedRow;
-        }
-        if (index > 0 && index < rowsLength) {
-            this.selectRow(this.rows[index]);
-            return this.selectedRow;
-        }
-        // we need to deselect all rows if we got an incorrect index
-        this.deselectAll();
-    }
     willSelectFirstRow() {
         this.willSelect = 'first';
     }
     willSelectLastRow() {
         this.willSelect = 'last';
     }
-    select(selectedRowIndex) {
+    select() {
         if (this.getRows().length === 0) {
             return;
         }
@@ -358,7 +336,7 @@ class DataSet {
             this.willSelect = '';
         }
         else {
-            this.selectRowByIndex(selectedRowIndex);
+            this.selectFirstRow();
         }
         return this.selectedRow;
     }
@@ -394,17 +372,8 @@ class Grid {
     constructor(source, settings) {
         this.createFormShown = false;
         this.onSelectRowSource = new Subject();
-        this.onDeselectRowSource = new Subject();
         this.setSettings(settings);
         this.setSource(source);
-    }
-    detach() {
-        if (this.sourceOnChangedSubscription) {
-            this.sourceOnChangedSubscription.unsubscribe();
-        }
-        if (this.sourceOnUpdatedSubscription) {
-            this.sourceOnUpdatedSubscription.unsubscribe();
-        }
     }
     showActionColumn(position) {
         return this.isCurrentActionsPosition(position) && this.isActionsVisible();
@@ -433,9 +402,8 @@ class Grid {
     }
     setSource(source) {
         this.source = this.prepareSource(source);
-        this.detach();
-        this.sourceOnChangedSubscription = this.source.onChanged().subscribe((changes) => this.processDataChange(changes));
-        this.sourceOnUpdatedSubscription = this.source.onUpdated().subscribe((data) => {
+        this.source.onChanged().subscribe((changes) => this.processDataChange(changes));
+        this.source.onUpdated().subscribe((data) => {
             const changedRow = this.dataSet.findRowByData(data);
             changedRow.setData(data);
         });
@@ -457,9 +425,6 @@ class Grid {
     }
     onSelectRow() {
         return this.onSelectRowSource.asObservable();
-    }
-    onDeselectRow() {
-        return this.onDeselectRowSource.asObservable();
     }
     edit(row) {
         row.isInEditing = true;
@@ -544,9 +509,6 @@ class Grid {
                 if (row) {
                     this.onSelectRowSource.next(row);
                 }
-                else {
-                    this.onDeselectRowSource.next(null);
-                }
             }
         }
     }
@@ -559,18 +521,10 @@ class Grid {
         }
         return false;
     }
-    /**
-     * @breaking-change 1.8.0
-     * Need to add `| null` in return type
-     *
-     * TODO: move to selectable? Separate directive
-     */
+    // TODO: move to selectable? Separate directive
     determineRowToSelect(changes) {
         if (['load', 'page', 'filter', 'sort', 'refresh'].indexOf(changes['action']) !== -1) {
-            return this.dataSet.select(this.getRowIndexToSelect());
-        }
-        if (this.shouldSkipSelection()) {
-            return null;
+            return this.dataSet.select();
         }
         if (changes['action'] === 'remove') {
             if (changes['elements'].length === 0) {
@@ -603,7 +557,7 @@ class Grid {
             source.setSort([initialSource], false);
         }
         if (this.getSetting('pager.display') === true) {
-            source.setPaging(this.getPageToSelect(source), this.getSetting('pager.perPage'), false);
+            source.setPaging(1, this.getSetting('pager.perPage'), false);
         }
         source.refresh();
         return source;
@@ -633,60 +587,9 @@ class Grid {
     getLastRow() {
         return this.dataSet.getLastRow();
     }
-    getSelectionInfo() {
-        const switchPageToSelectedRowPage = this.getSetting('switchPageToSelectedRowPage');
-        const selectedRowIndex = Number(this.getSetting('selectedRowIndex', 0)) || 0;
-        const { perPage, page } = this.getSetting('pager');
-        return { perPage, page, selectedRowIndex, switchPageToSelectedRowPage };
-    }
-    getRowIndexToSelect() {
-        const { switchPageToSelectedRowPage, selectedRowIndex, perPage } = this.getSelectionInfo();
-        const dataAmount = this.source.count();
-        /**
-         * source - contains all table data
-         * dataSet - contains data for current page
-         * selectedRowIndex - contains index for data in all data
-         *
-         * because of that, we need to count index for a specific row in page
-         * if
-         * `switchPageToSelectedRowPage` - we need to change page automatically
-         * `selectedRowIndex < dataAmount && selectedRowIndex >= 0` - index points to existing data
-         * (if index points to non-existing data and we calculate index for current page - we will get wrong selected row.
-         *  if we return index witch not points to existing data - no line will be highlighted)
-         */
-        return (switchPageToSelectedRowPage &&
-            selectedRowIndex < dataAmount &&
-            selectedRowIndex >= 0) ?
-            selectedRowIndex % perPage :
-            selectedRowIndex;
-    }
-    getPageToSelect(source) {
-        const { switchPageToSelectedRowPage, selectedRowIndex, perPage, page } = this.getSelectionInfo();
-        let pageToSelect = Math.max(1, page);
-        if (switchPageToSelectedRowPage && selectedRowIndex >= 0) {
-            pageToSelect = getPageForRowIndex(selectedRowIndex, perPage);
-        }
-        const maxPageAmount = Math.ceil(source.count() / perPage);
-        return maxPageAmount ? Math.min(pageToSelect, maxPageAmount) : pageToSelect;
-    }
-    shouldSkipSelection() {
-        /**
-         * For backward compatibility when using `selectedRowIndex` with non-number values - ignored.
-         *
-         * Therefore, in order to select a row after some changes,
-         * the `selectedRowIndex` value must be invalid or >= 0 (< 0 means that no row is selected).
-         *
-         * `Number(value)` returns `NaN` on all invalid cases, and comparisons with `NaN` always return `false`.
-         *
-         * !!! We should skip a row only in cases when `selectedRowIndex` < 0
-         * because when < 0 all lines must be deselected
-         */
-        const selectedRowIndex = Number(this.getSetting('selectedRowIndex'));
-        return selectedRowIndex < 0;
-    }
 }
 
-class CellComponent {
+let CellComponent = class CellComponent {
     constructor() {
         this.inputClass = '';
         this.mode = 'inline';
@@ -701,31 +604,59 @@ class CellComponent {
             this.grid.save(this.row, this.editConfirm);
         }
     }
-}
-CellComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'ng2-smart-table-cell',
-                template: `
+};
+__decorate([
+    Input(),
+    __metadata("design:type", Grid)
+], CellComponent.prototype, "grid", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", Row)
+], CellComponent.prototype, "row", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", EventEmitter)
+], CellComponent.prototype, "editConfirm", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", EventEmitter)
+], CellComponent.prototype, "createConfirm", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", Boolean)
+], CellComponent.prototype, "isNew", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", Cell)
+], CellComponent.prototype, "cell", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", String)
+], CellComponent.prototype, "inputClass", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", String)
+], CellComponent.prototype, "mode", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", Boolean)
+], CellComponent.prototype, "isInEditing", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], CellComponent.prototype, "edited", void 0);
+CellComponent = __decorate([
+    Component({
+        selector: 'ng2-smart-table-cell',
+        template: `
     <table-cell-view-mode *ngIf="!isInEditing" [cell]="cell"></table-cell-view-mode>
     <table-cell-edit-mode *ngIf="isInEditing" [cell]="cell"
                           [inputClass]="inputClass"
                           (edited)="onEdited($event)">
     </table-cell-edit-mode>
   `
-            },] }
-];
-CellComponent.propDecorators = {
-    grid: [{ type: Input }],
-    row: [{ type: Input }],
-    editConfirm: [{ type: Input }],
-    createConfirm: [{ type: Input }],
-    isNew: [{ type: Input }],
-    cell: [{ type: Input }],
-    inputClass: [{ type: Input }],
-    mode: [{ type: Input }],
-    isInEditing: [{ type: Input }],
-    edited: [{ type: Output }]
-};
+    })
+], CellComponent);
 
 class EditCellDefault {
     constructor() {
@@ -744,18 +675,20 @@ class EditCellDefault {
         event.stopPropagation();
     }
 }
-EditCellDefault.decorators = [
-    { type: Component, args: [{
-                template: ''
-            },] }
-];
-EditCellDefault.propDecorators = {
-    cell: [{ type: Input }],
-    inputClass: [{ type: Input }],
-    edited: [{ type: Output }]
-};
+__decorate([
+    Input(),
+    __metadata("design:type", Cell)
+], EditCellDefault.prototype, "cell", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", String)
+], EditCellDefault.prototype, "inputClass", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], EditCellDefault.prototype, "edited", void 0);
 
-class CustomEditComponent extends EditCellDefault {
+let CustomEditComponent = class CustomEditComponent extends EditCellDefault {
     constructor(resolver) {
         super();
         this.resolver = resolver;
@@ -777,39 +710,38 @@ class CustomEditComponent extends EditCellDefault {
             this.customComponent.destroy();
         }
     }
-}
-CustomEditComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'table-cell-custom-editor',
-                template: `
+};
+__decorate([
+    ViewChild('dynamicTarget', { read: ViewContainerRef, static: true }),
+    __metadata("design:type", Object)
+], CustomEditComponent.prototype, "dynamicTarget", void 0);
+CustomEditComponent = __decorate([
+    Component({
+        selector: 'table-cell-custom-editor',
+        template: `
     <ng-template #dynamicTarget></ng-template>
   `
-            },] }
-];
-CustomEditComponent.ctorParameters = () => [
-    { type: ComponentFactoryResolver }
-];
-CustomEditComponent.propDecorators = {
-    dynamicTarget: [{ type: ViewChild, args: ['dynamicTarget', { read: ViewContainerRef, static: true },] }]
-};
+    }),
+    __metadata("design:paramtypes", [ComponentFactoryResolver])
+], CustomEditComponent);
 
-class DefaultEditComponent extends EditCellDefault {
+let DefaultEditComponent = class DefaultEditComponent extends EditCellDefault {
     constructor() {
         super();
     }
     getEditorType() {
         return this.cell.getColumn().editor && this.cell.getColumn().editor.type;
     }
-}
-DefaultEditComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'table-cell-default-editor',
-                template: "<div [ngSwitch]=\"getEditorType()\">\n    <select-editor *ngSwitchCase=\"'list'\"\n                   [cell]=\"cell\"\n                   [inputClass]=\"inputClass\"\n                   (onClick)=\"onClick($event)\"\n                   (onEdited)=\"onEdited($event)\"\n                   (onStopEditing)=\"onStopEditing()\">\n    </select-editor>\n\n    <textarea-editor *ngSwitchCase=\"'textarea'\"\n                     [cell]=\"cell\"\n                     [inputClass]=\"inputClass\"\n                     (onClick)=\"onClick($event)\"\n                     (onEdited)=\"onEdited($event)\"\n                     (onStopEditing)=\"onStopEditing()\">\n    </textarea-editor>\n\n    <checkbox-editor *ngSwitchCase=\"'checkbox'\"\n                     [cell]=\"cell\"\n                     [inputClass]=\"inputClass\"\n                     (onClick)=\"onClick($event)\">\n    </checkbox-editor>\n\n    <completer-editor *ngSwitchCase=\"'completer'\"\n                      [cell]=\"cell\">\n    </completer-editor>\n\n    <input-editor *ngSwitchDefault\n                  [cell]=\"cell\"\n                  [inputClass]=\"inputClass\"\n                  (onClick)=\"onClick($event)\"\n                  (onEdited)=\"onEdited($event)\"\n                  (onStopEditing)=\"onStopEditing()\">\n    </input-editor>\n</div>"
-            },] }
-];
-DefaultEditComponent.ctorParameters = () => [];
+};
+DefaultEditComponent = __decorate([
+    Component({
+        selector: 'table-cell-default-editor',
+        template: "<div [ngSwitch]=\"getEditorType()\">\n    <select-editor *ngSwitchCase=\"'list'\"\n                   [cell]=\"cell\"\n                   [inputClass]=\"inputClass\"\n                   (onClick)=\"onClick($event)\"\n                   (onEdited)=\"onEdited($event)\"\n                   (onStopEditing)=\"onStopEditing()\">\n    </select-editor>\n\n    <textarea-editor *ngSwitchCase=\"'textarea'\"\n                     [cell]=\"cell\"\n                     [inputClass]=\"inputClass\"\n                     (onClick)=\"onClick($event)\"\n                     (onEdited)=\"onEdited($event)\"\n                     (onStopEditing)=\"onStopEditing()\">\n    </textarea-editor>\n\n    <checkbox-editor *ngSwitchCase=\"'checkbox'\"\n                     [cell]=\"cell\"\n                     [inputClass]=\"inputClass\"\n                     (onClick)=\"onClick($event)\">\n    </checkbox-editor>\n\n    <completer-editor *ngSwitchCase=\"'completer'\"\n                      [cell]=\"cell\">\n    </completer-editor>\n\n    <input-editor *ngSwitchDefault\n                  [cell]=\"cell\"\n                  [inputClass]=\"inputClass\"\n                  (onClick)=\"onClick($event)\"\n                  (onEdited)=\"onEdited($event)\"\n                  (onStopEditing)=\"onStopEditing()\">\n    </input-editor>\n</div>"
+    }),
+    __metadata("design:paramtypes", [])
+], DefaultEditComponent);
 
-class EditCellComponent {
+let EditCellComponent = class EditCellComponent {
     constructor() {
         this.inputClass = '';
         this.edited = new EventEmitter();
@@ -821,11 +753,23 @@ class EditCellComponent {
     getEditorType() {
         return this.cell.getColumn().editor && this.cell.getColumn().editor.type;
     }
-}
-EditCellComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'table-cell-edit-mode',
-                template: `
+};
+__decorate([
+    Input(),
+    __metadata("design:type", Cell)
+], EditCellComponent.prototype, "cell", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", String)
+], EditCellComponent.prototype, "inputClass", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], EditCellComponent.prototype, "edited", void 0);
+EditCellComponent = __decorate([
+    Component({
+        selector: 'table-cell-edit-mode',
+        template: `
       <div [ngSwitch]="getEditorType()">
         <table-cell-custom-editor *ngSwitchCase="'custom'"
                                   [cell]="cell"
@@ -839,13 +783,8 @@ EditCellComponent.decorators = [
         </table-cell-default-editor>
       </div>
     `
-            },] }
-];
-EditCellComponent.propDecorators = {
-    cell: [{ type: Input }],
-    inputClass: [{ type: Input }],
-    edited: [{ type: Output }]
-};
+    })
+], EditCellComponent);
 
 class DefaultEditor {
     constructor() {
@@ -854,20 +793,28 @@ class DefaultEditor {
         this.onClick = new EventEmitter();
     }
 }
-DefaultEditor.decorators = [
-    { type: Component, args: [{
-                template: ''
-            },] }
-];
-DefaultEditor.propDecorators = {
-    cell: [{ type: Input }],
-    inputClass: [{ type: Input }],
-    onStopEditing: [{ type: Output }],
-    onEdited: [{ type: Output }],
-    onClick: [{ type: Output }]
-};
+__decorate([
+    Input(),
+    __metadata("design:type", Cell)
+], DefaultEditor.prototype, "cell", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", String)
+], DefaultEditor.prototype, "inputClass", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], DefaultEditor.prototype, "onStopEditing", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], DefaultEditor.prototype, "onEdited", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], DefaultEditor.prototype, "onClick", void 0);
 
-class CheckboxEditorComponent extends DefaultEditor {
+let CheckboxEditorComponent = class CheckboxEditorComponent extends DefaultEditor {
     constructor() {
         super();
     }
@@ -876,11 +823,11 @@ class CheckboxEditorComponent extends DefaultEditor {
         const falseVal = (this.cell.getColumn().getConfig() && this.cell.getColumn().getConfig().false) || false;
         this.cell.newValue = event.target.checked ? trueVal : falseVal;
     }
-}
-CheckboxEditorComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'checkbox-editor',
-                template: `
+};
+CheckboxEditorComponent = __decorate([
+    Component({
+        selector: 'checkbox-editor',
+        template: `
     <input [ngClass]="inputClass"
            type="checkbox"
            class="form-control"
@@ -890,12 +837,12 @@ CheckboxEditorComponent.decorators = [
            (click)="onClick.emit($event)"
            (change)="onChange($event)">
     `,
-                styles: [":host input,:host textarea{line-height:normal;padding:.375em .75em;width:100%}"]
-            },] }
-];
-CheckboxEditorComponent.ctorParameters = () => [];
+        styles: [":host input,:host textarea{width:100%;line-height:normal;padding:.375em .75em}"]
+    }),
+    __metadata("design:paramtypes", [])
+], CheckboxEditorComponent);
 
-class CompleterEditorComponent extends DefaultEditor {
+let CompleterEditorComponent = class CompleterEditorComponent extends DefaultEditor {
     constructor(completerService) {
         super();
         this.completerService = completerService;
@@ -912,11 +859,11 @@ class CompleterEditorComponent extends DefaultEditor {
         this.cell.newValue = event.title;
         return false;
     }
-}
-CompleterEditorComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'completer-editor',
-                template: `
+};
+CompleterEditorComponent = __decorate([
+    Component({
+        selector: 'completer-editor',
+        template: `
     <ng2-completer [(ngModel)]="completerStr"
                    [dataService]="cell.getColumn().getConfig().completer.dataService"
                    [minSearchLength]="cell.getColumn().getConfig().completer.minSearchLength || 0"
@@ -925,21 +872,19 @@ CompleterEditorComponent.decorators = [
                    (selected)="onEditedCompleter($event)">
     </ng2-completer>
     `
-            },] }
-];
-CompleterEditorComponent.ctorParameters = () => [
-    { type: CompleterService }
-];
+    }),
+    __metadata("design:paramtypes", [CompleterService])
+], CompleterEditorComponent);
 
-class InputEditorComponent extends DefaultEditor {
+let InputEditorComponent = class InputEditorComponent extends DefaultEditor {
     constructor() {
         super();
     }
-}
-InputEditorComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'input-editor',
-                template: `
+};
+InputEditorComponent = __decorate([
+    Component({
+        selector: 'input-editor',
+        template: `
     <input [ngClass]="inputClass"
            class="form-control"
            [(ngModel)]="cell.newValue"
@@ -950,20 +895,20 @@ InputEditorComponent.decorators = [
            (keydown.enter)="onEdited.emit($event)"
            (keydown.esc)="onStopEditing.emit()">
     `,
-                styles: [":host input,:host textarea{line-height:normal;padding:.375em .75em;width:100%}"]
-            },] }
-];
-InputEditorComponent.ctorParameters = () => [];
+        styles: [":host input,:host textarea{width:100%;line-height:normal;padding:.375em .75em}"]
+    }),
+    __metadata("design:paramtypes", [])
+], InputEditorComponent);
 
-class SelectEditorComponent extends DefaultEditor {
+let SelectEditorComponent = class SelectEditorComponent extends DefaultEditor {
     constructor() {
         super();
     }
-}
-SelectEditorComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'select-editor',
-                template: `
+};
+SelectEditorComponent = __decorate([
+    Component({
+        selector: 'select-editor',
+        template: `
     <select [ngClass]="inputClass"
             class="form-control"
             [(ngModel)]="cell.newValue"
@@ -978,19 +923,19 @@ SelectEditorComponent.decorators = [
         </option>
     </select>
     `
-            },] }
-];
-SelectEditorComponent.ctorParameters = () => [];
+    }),
+    __metadata("design:paramtypes", [])
+], SelectEditorComponent);
 
-class TextareaEditorComponent extends DefaultEditor {
+let TextareaEditorComponent = class TextareaEditorComponent extends DefaultEditor {
     constructor() {
         super();
     }
-}
-TextareaEditorComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'textarea-editor',
-                template: `
+};
+TextareaEditorComponent = __decorate([
+    Component({
+        selector: 'textarea-editor',
+        template: `
     <textarea [ngClass]="inputClass"
               class="form-control"
               [(ngModel)]="cell.newValue"
@@ -1002,12 +947,12 @@ TextareaEditorComponent.decorators = [
               (keydown.esc)="onStopEditing.emit()">
     </textarea>
     `,
-                styles: [":host input,:host textarea{line-height:normal;padding:.375em .75em;width:100%}"]
-            },] }
-];
-TextareaEditorComponent.ctorParameters = () => [];
+        styles: [":host input,:host textarea{width:100%;line-height:normal;padding:.375em .75em}"]
+    }),
+    __metadata("design:paramtypes", [])
+], TextareaEditorComponent);
 
-class CustomViewComponent {
+let CustomViewComponent = class CustomViewComponent {
     constructor(resolver) {
         this.resolver = resolver;
     }
@@ -1040,46 +985,47 @@ class CustomViewComponent {
             rowData: this.cell.getRow().getData()
         };
     }
-}
-CustomViewComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'custom-view-component',
-                template: `
+};
+__decorate([
+    Input(),
+    __metadata("design:type", Cell)
+], CustomViewComponent.prototype, "cell", void 0);
+__decorate([
+    ViewChild('dynamicTarget', { read: ViewContainerRef, static: true }),
+    __metadata("design:type", Object)
+], CustomViewComponent.prototype, "dynamicTarget", void 0);
+CustomViewComponent = __decorate([
+    Component({
+        selector: 'custom-view-component',
+        template: `
     <ng-template #dynamicTarget></ng-template>
   `
-            },] }
-];
-CustomViewComponent.ctorParameters = () => [
-    { type: ComponentFactoryResolver }
-];
-CustomViewComponent.propDecorators = {
-    cell: [{ type: Input }],
-    dynamicTarget: [{ type: ViewChild, args: ['dynamicTarget', { read: ViewContainerRef, static: true },] }]
-};
+    }),
+    __metadata("design:paramtypes", [ComponentFactoryResolver])
+], CustomViewComponent);
 
-class ViewCellComponent {
-}
-ViewCellComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'table-cell-view-mode',
-                changeDetection: ChangeDetectionStrategy.OnPush,
-                template: `
+let ViewCellComponent = class ViewCellComponent {
+};
+__decorate([
+    Input(),
+    __metadata("design:type", Cell)
+], ViewCellComponent.prototype, "cell", void 0);
+ViewCellComponent = __decorate([
+    Component({
+        selector: 'table-cell-view-mode',
+        changeDetection: ChangeDetectionStrategy.OnPush,
+        template: `
     <div [ngSwitch]="cell.getColumn().type">
         <custom-view-component *ngSwitchCase="'custom'" [cell]="cell"></custom-view-component>
         <div *ngSwitchCase="'html'" [innerHTML]="cell.getValue()"></div>
         <div *ngSwitchDefault>{{ cell.getValue() }}</div>
     </div>
     `
-            },] }
-];
-ViewCellComponent.propDecorators = {
-    cell: [{ type: Input }]
-};
+    })
+], ViewCellComponent);
 
 const CELL_COMPONENTS = [
     CellComponent,
-    EditCellDefault,
-    DefaultEditor,
     CustomEditComponent,
     DefaultEditComponent,
     EditCellComponent,
@@ -1091,23 +1037,23 @@ const CELL_COMPONENTS = [
     CustomViewComponent,
     ViewCellComponent,
 ];
-class CellModule {
-}
-CellModule.decorators = [
-    { type: NgModule, args: [{
-                imports: [
-                    CommonModule,
-                    FormsModule,
-                    Ng2CompleterModule,
-                ],
-                declarations: [
-                    ...CELL_COMPONENTS,
-                ],
-                exports: [
-                    ...CELL_COMPONENTS,
-                ],
-            },] }
-];
+let CellModule = class CellModule {
+};
+CellModule = __decorate([
+    NgModule({
+        imports: [
+            CommonModule,
+            FormsModule,
+            Ng2CompleterModule,
+        ],
+        declarations: [
+            ...CELL_COMPONENTS,
+        ],
+        exports: [
+            ...CELL_COMPONENTS,
+        ],
+    })
+], CellModule);
 
 class DataSource {
     constructor() {
@@ -1223,19 +1169,24 @@ class FilterDefault {
         });
     }
 }
-FilterDefault.decorators = [
-    { type: Component, args: [{
-                template: ''
-            },] }
-];
-FilterDefault.propDecorators = {
-    column: [{ type: Input }],
-    source: [{ type: Input }],
-    inputClass: [{ type: Input }],
-    filter: [{ type: Output }]
-};
+__decorate([
+    Input(),
+    __metadata("design:type", Column)
+], FilterDefault.prototype, "column", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", DataSource)
+], FilterDefault.prototype, "source", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", String)
+], FilterDefault.prototype, "inputClass", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], FilterDefault.prototype, "filter", void 0);
 
-class FilterComponent extends FilterDefault {
+let FilterComponent = class FilterComponent extends FilterDefault {
     constructor() {
         super(...arguments);
         this.query = '';
@@ -1262,11 +1213,11 @@ class FilterComponent extends FilterDefault {
             });
         }
     }
-}
-FilterComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'ng2-smart-table-filter',
-                template: `
+};
+FilterComponent = __decorate([
+    Component({
+        selector: 'ng2-smart-table-filter',
+        template: `
       <div class="ng2-smart-filter" *ngIf="column.isFilterable" [ngSwitch]="column.getFilterType()">
         <custom-table-filter *ngSwitchCase="'custom'"
                              [query]="query"
@@ -1284,16 +1235,20 @@ FilterComponent.decorators = [
         </default-table-filter>
       </div>
     `,
-                styles: [":host .ng2-smart-filter ::ng-deep input,:host .ng2-smart-filter ::ng-deep select{font-weight:400;line-height:normal;padding:.375em .75em;width:100%}:host .ng2-smart-filter ::ng-deep input[type=search]{box-sizing:inherit}:host .ng2-smart-filter ::ng-deep .completer-dropdown-holder,:host .ng2-smart-filter ::ng-deep a{font-weight:400}"]
-            },] }
-];
+        styles: [":host .ng2-smart-filter ::ng-deep input,:host .ng2-smart-filter ::ng-deep select{width:100%;line-height:normal;padding:.375em .75em;font-weight:400}:host .ng2-smart-filter ::ng-deep input[type=search]{box-sizing:inherit}:host .ng2-smart-filter ::ng-deep .completer-dropdown-holder{font-weight:400}:host .ng2-smart-filter ::ng-deep a{font-weight:400}"]
+    })
+], FilterComponent);
 
-class DefaultFilterComponent extends FilterDefault {
-}
-DefaultFilterComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'default-table-filter',
-                template: `
+let DefaultFilterComponent = class DefaultFilterComponent extends FilterDefault {
+};
+__decorate([
+    Input(),
+    __metadata("design:type", String)
+], DefaultFilterComponent.prototype, "query", void 0);
+DefaultFilterComponent = __decorate([
+    Component({
+        selector: 'default-table-filter',
+        template: `
     <ng-container [ngSwitch]="column.getFilterType()">
       <select-filter *ngSwitchCase="'list'"
                      [query]="query"
@@ -1321,13 +1276,10 @@ DefaultFilterComponent.decorators = [
       </input-filter>
     </ng-container>
   `
-            },] }
-];
-DefaultFilterComponent.propDecorators = {
-    query: [{ type: Input }]
-};
+    })
+], DefaultFilterComponent);
 
-class CustomFilterComponent extends FilterDefault {
+let CustomFilterComponent = class CustomFilterComponent extends FilterDefault {
     constructor(resolver) {
         super();
         this.resolver = resolver;
@@ -1352,20 +1304,22 @@ class CustomFilterComponent extends FilterDefault {
             this.customComponent.destroy();
         }
     }
-}
-CustomFilterComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'custom-table-filter',
-                template: `<ng-template #dynamicTarget></ng-template>`
-            },] }
-];
-CustomFilterComponent.ctorParameters = () => [
-    { type: ComponentFactoryResolver }
-];
-CustomFilterComponent.propDecorators = {
-    query: [{ type: Input }],
-    dynamicTarget: [{ type: ViewChild, args: ['dynamicTarget', { read: ViewContainerRef, static: true },] }]
 };
+__decorate([
+    Input(),
+    __metadata("design:type", String)
+], CustomFilterComponent.prototype, "query", void 0);
+__decorate([
+    ViewChild('dynamicTarget', { read: ViewContainerRef, static: true }),
+    __metadata("design:type", Object)
+], CustomFilterComponent.prototype, "dynamicTarget", void 0);
+CustomFilterComponent = __decorate([
+    Component({
+        selector: 'custom-table-filter',
+        template: `<ng-template #dynamicTarget></ng-template>`
+    }),
+    __metadata("design:paramtypes", [ComponentFactoryResolver])
+], CustomFilterComponent);
 
 class DefaultFilter {
     constructor() {
@@ -1381,19 +1335,24 @@ class DefaultFilter {
         this.filter.emit(this.query);
     }
 }
-DefaultFilter.decorators = [
-    { type: Component, args: [{
-                template: ''
-            },] }
-];
-DefaultFilter.propDecorators = {
-    query: [{ type: Input }],
-    inputClass: [{ type: Input }],
-    column: [{ type: Input }],
-    filter: [{ type: Output }]
-};
+__decorate([
+    Input(),
+    __metadata("design:type", String)
+], DefaultFilter.prototype, "query", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", String)
+], DefaultFilter.prototype, "inputClass", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", Column)
+], DefaultFilter.prototype, "column", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], DefaultFilter.prototype, "filter", void 0);
 
-class CheckboxFilterComponent extends DefaultFilter {
+let CheckboxFilterComponent = class CheckboxFilterComponent extends DefaultFilter {
     constructor() {
         super();
         this.filterActive = false;
@@ -1417,20 +1376,20 @@ class CheckboxFilterComponent extends DefaultFilter {
         this.filterActive = false;
         this.setFilter();
     }
-}
-CheckboxFilterComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'checkbox-filter',
-                template: `
+};
+CheckboxFilterComponent = __decorate([
+    Component({
+        selector: 'checkbox-filter',
+        template: `
     <input type="checkbox" [formControl]="inputControl" [ngClass]="inputClass" class="form-control">
     <a href="#" *ngIf="filterActive"
                 (click)="resetFilter($event)">{{column.getFilterConfig()?.resetText || 'reset'}}</a>
   `
-            },] }
-];
-CheckboxFilterComponent.ctorParameters = () => [];
+    }),
+    __metadata("design:paramtypes", [])
+], CheckboxFilterComponent);
 
-class CompleterFilterComponent extends DefaultFilter {
+let CompleterFilterComponent = class CompleterFilterComponent extends DefaultFilter {
     constructor(completerService) {
         super();
         this.completerService = completerService;
@@ -1455,11 +1414,11 @@ class CompleterFilterComponent extends DefaultFilter {
             this.completerContent.next(event);
         }
     }
-}
-CompleterFilterComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'completer-filter',
-                template: `
+};
+CompleterFilterComponent = __decorate([
+    Component({
+        selector: 'completer-filter',
+        template: `
     <ng2-completer [(ngModel)]="query"
                    (ngModelChange)="inputTextChanged($event)"
                    [dataService]="column.getFilterConfig().completer.dataService"
@@ -1469,13 +1428,11 @@ CompleterFilterComponent.decorators = [
                    (selected)="completerContent.next($event)">
     </ng2-completer>
   `
-            },] }
-];
-CompleterFilterComponent.ctorParameters = () => [
-    { type: CompleterService }
-];
+    }),
+    __metadata("design:paramtypes", [CompleterService])
+], CompleterFilterComponent);
 
-class InputFilterComponent extends DefaultFilter {
+let InputFilterComponent = class InputFilterComponent extends DefaultFilter {
     constructor() {
         super();
         this.inputControl = new FormControl();
@@ -1496,11 +1453,11 @@ class InputFilterComponent extends DefaultFilter {
             this.inputControl.setValue(this.query);
         }
     }
-}
-InputFilterComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'input-filter',
-                template: `
+};
+InputFilterComponent = __decorate([
+    Component({
+        selector: 'input-filter',
+        template: `
     <input
       [ngClass]="inputClass"
       [formControl]="inputControl"
@@ -1508,11 +1465,11 @@ InputFilterComponent.decorators = [
       type="text"
       placeholder="{{ column.title }}"/>
   `
-            },] }
-];
-InputFilterComponent.ctorParameters = () => [];
+    }),
+    __metadata("design:paramtypes", [])
+], InputFilterComponent);
 
-class SelectFilterComponent extends DefaultFilter {
+let SelectFilterComponent = class SelectFilterComponent extends DefaultFilter {
     constructor() {
         super();
     }
@@ -1521,11 +1478,15 @@ class SelectFilterComponent extends DefaultFilter {
             .pipe(skip(1), distinctUntilChanged(), debounceTime(this.delay))
             .subscribe((value) => this.setFilter());
     }
-}
-SelectFilterComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'select-filter',
-                template: `
+};
+__decorate([
+    ViewChild('inputControl', { read: NgControl, static: true }),
+    __metadata("design:type", NgControl)
+], SelectFilterComponent.prototype, "inputControl", void 0);
+SelectFilterComponent = __decorate([
+    Component({
+        selector: 'select-filter',
+        template: `
     <select [ngClass]="inputClass"
             class="form-control"
             #inputControl
@@ -1537,16 +1498,11 @@ SelectFilterComponent.decorators = [
         </option>
     </select>
   `
-            },] }
-];
-SelectFilterComponent.ctorParameters = () => [];
-SelectFilterComponent.propDecorators = {
-    inputControl: [{ type: ViewChild, args: ['inputControl', { read: NgControl, static: true },] }]
-};
+    }),
+    __metadata("design:paramtypes", [])
+], SelectFilterComponent);
 
 const FILTER_COMPONENTS = [
-    FilterDefault,
-    DefaultFilter,
     FilterComponent,
     DefaultFilterComponent,
     CustomFilterComponent,
@@ -1555,26 +1511,26 @@ const FILTER_COMPONENTS = [
     InputFilterComponent,
     SelectFilterComponent,
 ];
-class FilterModule {
-}
-FilterModule.decorators = [
-    { type: NgModule, args: [{
-                imports: [
-                    CommonModule,
-                    FormsModule,
-                    ReactiveFormsModule,
-                    Ng2CompleterModule,
-                ],
-                declarations: [
-                    ...FILTER_COMPONENTS,
-                ],
-                exports: [
-                    ...FILTER_COMPONENTS,
-                ],
-            },] }
-];
+let FilterModule = class FilterModule {
+};
+FilterModule = __decorate([
+    NgModule({
+        imports: [
+            CommonModule,
+            FormsModule,
+            ReactiveFormsModule,
+            Ng2CompleterModule,
+        ],
+        declarations: [
+            ...FILTER_COMPONENTS,
+        ],
+        exports: [
+            ...FILTER_COMPONENTS,
+        ],
+    })
+], FilterModule);
 
-class PagerComponent {
+let PagerComponent = class PagerComponent {
     constructor() {
         this.perPageSelect = [];
         this.changePage = new EventEmitter();
@@ -1667,11 +1623,23 @@ class PagerComponent {
             this.initPages();
         }
     }
-}
-PagerComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'ng2-smart-table-pager',
-                template: `
+};
+__decorate([
+    Input(),
+    __metadata("design:type", DataSource)
+], PagerComponent.prototype, "source", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", Array)
+], PagerComponent.prototype, "perPageSelect", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], PagerComponent.prototype, "changePage", void 0);
+PagerComponent = __decorate([
+    Component({
+        selector: 'ng2-smart-table-pager',
+        template: `
     <nav *ngIf="shouldShow()" class="ng2-smart-pagination-nav">
       <ul class="ng2-smart-pagination pagination">
         <li class="ng2-smart-page-item page-item" [ngClass]="{disabled: getPage() == 1}">
@@ -1725,33 +1693,28 @@ PagerComponent.decorators = [
       </select>
     </nav>
   `,
-                styles: [".ng2-smart-pagination{display:inline-flex;font-size:.875em;padding:0}.ng2-smart-pagination .sr-only{border:0;clip:rect(0,0,0,0);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px}.ng2-smart-pagination .ng2-smart-page-item{display:inline}.ng2-smart-pagination .page-link-next,.ng2-smart-pagination .page-link-prev{font-size:10px}:host{display:flex;justify-content:space-between}:host label,:host select{margin:1rem 0 1rem 1rem}:host label{line-height:2.5rem}"]
-            },] }
-];
-PagerComponent.propDecorators = {
-    source: [{ type: Input }],
-    perPageSelect: [{ type: Input }],
-    changePage: [{ type: Output }]
+        styles: [".ng2-smart-pagination{display:inline-flex;font-size:.875em;padding:0}.ng2-smart-pagination .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}.ng2-smart-pagination .ng2-smart-page-item{display:inline}.ng2-smart-pagination .page-link-next,.ng2-smart-pagination .page-link-prev{font-size:10px}:host{display:flex;justify-content:space-between}:host select{margin:1rem 0 1rem 1rem}:host label{margin:1rem 0 1rem 1rem;line-height:2.5rem}"]
+    })
+], PagerComponent);
+
+let PagerModule = class PagerModule {
 };
+PagerModule = __decorate([
+    NgModule({
+        imports: [
+            CommonModule,
+            FormsModule,
+        ],
+        declarations: [
+            PagerComponent,
+        ],
+        exports: [
+            PagerComponent,
+        ],
+    })
+], PagerModule);
 
-class PagerModule {
-}
-PagerModule.decorators = [
-    { type: NgModule, args: [{
-                imports: [
-                    CommonModule,
-                    FormsModule,
-                ],
-                declarations: [
-                    PagerComponent,
-                ],
-                exports: [
-                    PagerComponent,
-                ],
-            },] }
-];
-
-class Ng2SmartTableTbodyComponent {
+let Ng2SmartTableTbodyComponent = class Ng2SmartTableTbodyComponent {
     constructor() {
         this.save = new EventEmitter();
         this.cancel = new EventEmitter();
@@ -1779,36 +1742,76 @@ class Ng2SmartTableTbodyComponent {
         this.isActionDelete = this.grid.getSetting('actions.delete');
         this.noDataMessage = this.grid.getSetting('noDataMessage');
     }
-    getVisibleCells(cells) {
-        return (cells || []).filter((cell) => !cell.getColumn().hide);
-    }
-}
-Ng2SmartTableTbodyComponent.decorators = [
-    { type: Component, args: [{
-                selector: '[ng2-st-tbody]',
-                template: "<tr *ngFor=\"let row of grid.getRows()\" (click)=\"userSelectRow.emit(row)\" (mouseover)=\"rowHover.emit(row)\" class=\"ng2-smart-row\" [className]=\"rowClassFunction(row)\" [ngClass]=\"{selected: row.isSelected}\">\n  <td *ngIf=\"isMultiSelectVisible\" class=\"ng2-smart-actions ng2-smart-action-multiple-select\" (click)=\"multipleSelectRow.emit(row)\">\n    <input type=\"checkbox\" class=\"form-control\" [ngModel]=\"row.isSelected\">\n  </td>\n  <td *ngIf=\"!row.isInEditing && showActionColumnLeft\" class=\"ng2-smart-actions\">\n    <ng2-st-tbody-custom [grid]=\"grid\" (custom)=\"custom.emit($event)\" [row]=\"row\" [source]=\"source\"></ng2-st-tbody-custom>\n\n    <ng2-st-tbody-edit-delete [grid]=\"grid\"\n                              [deleteConfirm]=\"deleteConfirm\"\n                              [editConfirm]=\"editConfirm\"\n                              (edit)=\"edit.emit(row)\"\n                              (delete)=\"delete.emit(row)\"\n                              (editRowSelect)=\"editRowSelect.emit($event)\"\n                              [row]=\"row\"\n                              [source]=\"source\">\n    </ng2-st-tbody-edit-delete>\n  </td>\n   <td *ngIf=\"row.isInEditing && showActionColumnLeft\"  class=\"ng2-smart-actions\">\n    <ng2-st-tbody-create-cancel [grid]=\"grid\" [row]=\"row\" [editConfirm]=\"editConfirm\"></ng2-st-tbody-create-cancel>\n  </td>\n  <td *ngFor=\"let cell of getVisibleCells(row.cells)\">\n    <ng2-smart-table-cell [cell]=\"cell\"\n                          [grid]=\"grid\"\n                          [row]=\"row\"\n                          [isNew]=\"false\"\n                          [mode]=\"mode\"\n                          [editConfirm]=\"editConfirm\"\n                          [inputClass]=\"editInputClass\"\n                          [isInEditing]=\"row.isInEditing\">\n    </ng2-smart-table-cell>\n  </td>\n\n  <td *ngIf=\"row.isInEditing && showActionColumnRight\"  class=\"ng2-smart-actions\">\n    <ng2-st-tbody-create-cancel [grid]=\"grid\" [row]=\"row\" [editConfirm]=\"editConfirm\"></ng2-st-tbody-create-cancel>\n  </td>\n\n  <td *ngIf=\"!row.isInEditing && showActionColumnRight\" class=\"ng2-smart-actions\">\n    <ng2-st-tbody-custom [grid]=\"grid\" (custom)=\"custom.emit($event)\" [row]=\"row\" [source]=\"source\"></ng2-st-tbody-custom>\n\n    <ng2-st-tbody-edit-delete [grid]=\"grid\"\n                              [deleteConfirm]=\"deleteConfirm\"\n                              [editConfirm]=\"editConfirm\"\n                              [row]=\"row\"\n                              [source]=\"source\"\n                              (edit)=\"edit.emit(row)\"\n                              (delete)=\"delete.emit(row)\"\n                              (editRowSelect)=\"editRowSelect.emit($event)\">\n    </ng2-st-tbody-edit-delete>\n  </td>\n</tr>\n\n<tr *ngIf=\"grid.getRows().length == 0\">\n  <td [attr.colspan]=\"tableColumnsCount\">\n    {{ noDataMessage }}\n  </td>\n</tr>\n",
-                styles: [":host .ng2-smart-row.selected{background:rgba(0,0,0,.05)}:host .ng2-smart-row .ng2-smart-actions.ng2-smart-action-multiple-select{text-align:center}:host ::ng-deep ng2-st-tbody-create-cancel a:first-child,:host ::ng-deep ng2-st-tbody-edit-delete a:first-child{margin-right:.25rem}"]
-            },] }
-];
-Ng2SmartTableTbodyComponent.propDecorators = {
-    grid: [{ type: Input }],
-    source: [{ type: Input }],
-    deleteConfirm: [{ type: Input }],
-    editConfirm: [{ type: Input }],
-    rowClassFunction: [{ type: Input }],
-    save: [{ type: Output }],
-    cancel: [{ type: Output }],
-    edit: [{ type: Output }],
-    delete: [{ type: Output }],
-    custom: [{ type: Output }],
-    edited: [{ type: Output }],
-    userSelectRow: [{ type: Output }],
-    editRowSelect: [{ type: Output }],
-    multipleSelectRow: [{ type: Output }],
-    rowHover: [{ type: Output }]
 };
+__decorate([
+    Input(),
+    __metadata("design:type", Grid)
+], Ng2SmartTableTbodyComponent.prototype, "grid", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", DataSource)
+], Ng2SmartTableTbodyComponent.prototype, "source", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", EventEmitter)
+], Ng2SmartTableTbodyComponent.prototype, "deleteConfirm", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", EventEmitter)
+], Ng2SmartTableTbodyComponent.prototype, "editConfirm", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", Function)
+], Ng2SmartTableTbodyComponent.prototype, "rowClassFunction", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableTbodyComponent.prototype, "save", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableTbodyComponent.prototype, "cancel", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableTbodyComponent.prototype, "edit", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableTbodyComponent.prototype, "delete", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableTbodyComponent.prototype, "custom", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableTbodyComponent.prototype, "edited", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableTbodyComponent.prototype, "userSelectRow", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableTbodyComponent.prototype, "editRowSelect", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableTbodyComponent.prototype, "multipleSelectRow", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableTbodyComponent.prototype, "rowHover", void 0);
+Ng2SmartTableTbodyComponent = __decorate([
+    Component({
+        selector: '[ng2-st-tbody]',
+        template: "<tr *ngFor=\"let row of grid.getRows()\" (click)=\"userSelectRow.emit(row)\" (mouseover)=\"rowHover.emit(row)\" class=\"ng2-smart-row\" [className]=\"rowClassFunction(row)\" [ngClass]=\"{selected: row.isSelected}\">\n  <td *ngIf=\"isMultiSelectVisible\" class=\"ng2-smart-actions ng2-smart-action-multiple-select\" (click)=\"multipleSelectRow.emit(row)\">\n    <input type=\"checkbox\" class=\"form-control\" [ngModel]=\"row.isSelected\">\n  </td>\n  <td *ngIf=\"!row.isInEditing && showActionColumnLeft\" class=\"ng2-smart-actions\">\n    <ng2-st-tbody-custom [grid]=\"grid\" (custom)=\"custom.emit($event)\" [row]=\"row\" [source]=\"source\"></ng2-st-tbody-custom>\n\n    <ng2-st-tbody-edit-delete [grid]=\"grid\"\n                              [deleteConfirm]=\"deleteConfirm\"\n                              [editConfirm]=\"editConfirm\"\n                              (edit)=\"edit.emit(row)\"\n                              (delete)=\"delete.emit(row)\"\n                              (editRowSelect)=\"editRowSelect.emit($event)\"\n                              [row]=\"row\"\n                              [source]=\"source\">\n    </ng2-st-tbody-edit-delete>\n  </td>\n   <td *ngIf=\"row.isInEditing && showActionColumnLeft\"  class=\"ng2-smart-actions\">\n    <ng2-st-tbody-create-cancel [grid]=\"grid\" [row]=\"row\" [editConfirm]=\"editConfirm\"></ng2-st-tbody-create-cancel>\n  </td>\n  <td *ngFor=\"let cell of row.cells\">\n    <ng2-smart-table-cell [cell]=\"cell\"\n                          [grid]=\"grid\"\n                          [row]=\"row\"\n                          [isNew]=\"false\"\n                          [mode]=\"mode\"\n                          [editConfirm]=\"editConfirm\"\n                          [inputClass]=\"editInputClass\"\n                          [isInEditing]=\"row.isInEditing\">\n    </ng2-smart-table-cell>\n  </td>\n\n  <td *ngIf=\"row.isInEditing && showActionColumnRight\"  class=\"ng2-smart-actions\">\n    <ng2-st-tbody-create-cancel [grid]=\"grid\" [row]=\"row\" [editConfirm]=\"editConfirm\"></ng2-st-tbody-create-cancel>\n  </td>\n\n  <td *ngIf=\"!row.isInEditing && showActionColumnRight\" class=\"ng2-smart-actions\">\n    <ng2-st-tbody-custom [grid]=\"grid\" (custom)=\"custom.emit($event)\" [row]=\"row\" [source]=\"source\"></ng2-st-tbody-custom>\n\n    <ng2-st-tbody-edit-delete [grid]=\"grid\"\n                              [deleteConfirm]=\"deleteConfirm\"\n                              [editConfirm]=\"editConfirm\"\n                              [row]=\"row\"\n                              [source]=\"source\"\n                              (edit)=\"edit.emit(row)\"\n                              (delete)=\"delete.emit(row)\"\n                              (editRowSelect)=\"editRowSelect.emit($event)\">\n    </ng2-st-tbody-edit-delete>\n  </td>\n</tr>\n\n<tr *ngIf=\"grid.getRows().length == 0\">\n  <td [attr.colspan]=\"tableColumnsCount\">\n    {{ noDataMessage }}\n  </td>\n</tr>\n",
+        styles: [":host .ng2-smart-row.selected{background:rgba(0,0,0,.05)}:host .ng2-smart-row .ng2-smart-actions.ng2-smart-action-multiple-select{text-align:center}:host ::ng-deep ng2-st-tbody-create-cancel a:first-child,:host ::ng-deep ng2-st-tbody-edit-delete a:first-child{margin-right:.25rem}"]
+    })
+], Ng2SmartTableTbodyComponent);
 
-class TbodyCreateCancelComponent {
+let TbodyCreateCancelComponent = class TbodyCreateCancelComponent {
     onSave(event) {
         event.preventDefault();
         event.stopPropagation();
@@ -1823,25 +1826,32 @@ class TbodyCreateCancelComponent {
         this.saveButtonContent = this.grid.getSetting('edit.saveButtonContent');
         this.cancelButtonContent = this.grid.getSetting('edit.cancelButtonContent');
     }
-}
-TbodyCreateCancelComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'ng2-st-tbody-create-cancel',
-                template: `
+};
+__decorate([
+    Input(),
+    __metadata("design:type", Grid)
+], TbodyCreateCancelComponent.prototype, "grid", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", Row)
+], TbodyCreateCancelComponent.prototype, "row", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", EventEmitter)
+], TbodyCreateCancelComponent.prototype, "editConfirm", void 0);
+TbodyCreateCancelComponent = __decorate([
+    Component({
+        selector: 'ng2-st-tbody-create-cancel',
+        template: `
     <a href="#" class="ng2-smart-action ng2-smart-action-edit-save"
         [innerHTML]="saveButtonContent" (click)="onSave($event)"></a>
     <a href="#" class="ng2-smart-action ng2-smart-action-edit-cancel"
         [innerHTML]="cancelButtonContent" (click)="onCancelEdit($event)"></a>
   `
-            },] }
-];
-TbodyCreateCancelComponent.propDecorators = {
-    grid: [{ type: Input }],
-    row: [{ type: Input }],
-    editConfirm: [{ type: Input }]
-};
+    })
+], TbodyCreateCancelComponent);
 
-class TbodyEditDeleteComponent {
+let TbodyEditDeleteComponent = class TbodyEditDeleteComponent {
     constructor() {
         this.edit = new EventEmitter();
         this.delete = new EventEmitter();
@@ -1880,31 +1890,53 @@ class TbodyEditDeleteComponent {
         this.editRowButtonContent = this.grid.getSetting('edit.editButtonContent');
         this.deleteRowButtonContent = this.grid.getSetting('delete.deleteButtonContent');
     }
-}
-TbodyEditDeleteComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'ng2-st-tbody-edit-delete',
-                changeDetection: ChangeDetectionStrategy.OnPush,
-                template: `
+};
+__decorate([
+    Input(),
+    __metadata("design:type", Grid)
+], TbodyEditDeleteComponent.prototype, "grid", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", Row)
+], TbodyEditDeleteComponent.prototype, "row", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", DataSource)
+], TbodyEditDeleteComponent.prototype, "source", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", EventEmitter)
+], TbodyEditDeleteComponent.prototype, "deleteConfirm", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", EventEmitter)
+], TbodyEditDeleteComponent.prototype, "editConfirm", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], TbodyEditDeleteComponent.prototype, "edit", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], TbodyEditDeleteComponent.prototype, "delete", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], TbodyEditDeleteComponent.prototype, "editRowSelect", void 0);
+TbodyEditDeleteComponent = __decorate([
+    Component({
+        selector: 'ng2-st-tbody-edit-delete',
+        changeDetection: ChangeDetectionStrategy.OnPush,
+        template: `
     <a href="#" *ngIf="isActionEdit" class="ng2-smart-action ng2-smart-action-edit-edit"
         [innerHTML]="editRowButtonContent" (click)="onEdit($event)"></a>
     <a href="#" *ngIf="isActionDelete" class="ng2-smart-action ng2-smart-action-delete-delete"
         [innerHTML]="deleteRowButtonContent" (click)="onDelete($event)"></a>
   `
-            },] }
-];
-TbodyEditDeleteComponent.propDecorators = {
-    grid: [{ type: Input }],
-    row: [{ type: Input }],
-    source: [{ type: Input }],
-    deleteConfirm: [{ type: Input }],
-    editConfirm: [{ type: Input }],
-    edit: [{ type: Output }],
-    delete: [{ type: Output }],
-    editRowSelect: [{ type: Output }]
-};
+    })
+], TbodyEditDeleteComponent);
 
-class TbodyCustomComponent {
+let TbodyCustomComponent = class TbodyCustomComponent {
     constructor() {
         this.custom = new EventEmitter();
     }
@@ -1917,25 +1949,35 @@ class TbodyCustomComponent {
             source: this.source
         });
     }
-}
-TbodyCustomComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'ng2-st-tbody-custom',
-                changeDetection: ChangeDetectionStrategy.OnPush,
-                template: `
+};
+__decorate([
+    Input(),
+    __metadata("design:type", Grid)
+], TbodyCustomComponent.prototype, "grid", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", Row)
+], TbodyCustomComponent.prototype, "row", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", Object)
+], TbodyCustomComponent.prototype, "source", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], TbodyCustomComponent.prototype, "custom", void 0);
+TbodyCustomComponent = __decorate([
+    Component({
+        selector: 'ng2-st-tbody-custom',
+        changeDetection: ChangeDetectionStrategy.OnPush,
+        template: `
       <a *ngFor="let action of grid.getSetting('actions.custom')" href="#"
          class="ng2-smart-action ng2-smart-action-custom-custom" 
          [innerHTML]="action.title"
          (click)="onCustom(action, $event)"></a>
         `
-            },] }
-];
-TbodyCustomComponent.propDecorators = {
-    grid: [{ type: Input }],
-    row: [{ type: Input }],
-    source: [{ type: Input }],
-    custom: [{ type: Output }]
-};
+    })
+], TbodyCustomComponent);
 
 const TBODY_COMPONENTS = [
     TbodyCreateCancelComponent,
@@ -1943,25 +1985,25 @@ const TBODY_COMPONENTS = [
     TbodyCustomComponent,
     Ng2SmartTableTbodyComponent
 ];
-class TBodyModule {
-}
-TBodyModule.decorators = [
-    { type: NgModule, args: [{
-                imports: [
-                    CommonModule,
-                    FormsModule,
-                    CellModule,
-                ],
-                declarations: [
-                    ...TBODY_COMPONENTS,
-                ],
-                exports: [
-                    ...TBODY_COMPONENTS,
-                ],
-            },] }
-];
+let TBodyModule = class TBodyModule {
+};
+TBodyModule = __decorate([
+    NgModule({
+        imports: [
+            CommonModule,
+            FormsModule,
+            CellModule,
+        ],
+        declarations: [
+            ...TBODY_COMPONENTS,
+        ],
+        exports: [
+            ...TBODY_COMPONENTS,
+        ],
+    })
+], TBodyModule);
 
-class Ng2SmartTableTheadComponent {
+let Ng2SmartTableTheadComponent = class Ng2SmartTableTheadComponent {
     constructor() {
         this.sort = new EventEmitter();
         this.selectAllRows = new EventEmitter();
@@ -1972,25 +2014,47 @@ class Ng2SmartTableTheadComponent {
         this.isHideHeader = this.grid.getSetting('hideHeader');
         this.isHideSubHeader = this.grid.getSetting('hideSubHeader');
     }
-}
-Ng2SmartTableTheadComponent.decorators = [
-    { type: Component, args: [{
-                selector: '[ng2-st-thead]',
-                template: "<tr ng2-st-thead-titles-row *ngIf=\"!isHideHeader\"\n                            class=\"ng2-smart-titles\"\n                            [grid]=\"grid\"\n                            [isAllSelected]=\"isAllSelected\"\n                            [source]=\"source\"\n                            (sort)=\"sort.emit($event)\"\n                            (selectAllRows)=\"selectAllRows.emit($event)\">\n</tr>\n\n<tr ng2-st-thead-filters-row *ngIf=\"!isHideSubHeader\"\n                              class=\"ng2-smart-filters\"\n                              [grid]=\"grid\"\n                              [source]=\"source\"\n                              (create)=\"create.emit($event)\"\n                              (filter)=\"filter.emit($event)\">\n</tr>\n\n<tr ng2-st-thead-form-row *ngIf=\"grid.createFormShown\"\n                          [grid]=\"grid\"\n                          [createConfirm]=\"createConfirm\">\n</tr>\n"
-            },] }
-];
-Ng2SmartTableTheadComponent.propDecorators = {
-    grid: [{ type: Input }],
-    source: [{ type: Input }],
-    isAllSelected: [{ type: Input }],
-    createConfirm: [{ type: Input }],
-    sort: [{ type: Output }],
-    selectAllRows: [{ type: Output }],
-    create: [{ type: Output }],
-    filter: [{ type: Output }]
 };
+__decorate([
+    Input(),
+    __metadata("design:type", Grid)
+], Ng2SmartTableTheadComponent.prototype, "grid", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", DataSource)
+], Ng2SmartTableTheadComponent.prototype, "source", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", Boolean)
+], Ng2SmartTableTheadComponent.prototype, "isAllSelected", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", EventEmitter)
+], Ng2SmartTableTheadComponent.prototype, "createConfirm", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableTheadComponent.prototype, "sort", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableTheadComponent.prototype, "selectAllRows", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableTheadComponent.prototype, "create", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableTheadComponent.prototype, "filter", void 0);
+Ng2SmartTableTheadComponent = __decorate([
+    Component({
+        selector: '[ng2-st-thead]',
+        template: "<tr ng2-st-thead-titles-row *ngIf=\"!isHideHeader\"\n                            class=\"ng2-smart-titles\"\n                            [grid]=\"grid\"\n                            [isAllSelected]=\"isAllSelected\"\n                            [source]=\"source\"\n                            (sort)=\"sort.emit($event)\"\n                            (selectAllRows)=\"selectAllRows.emit($event)\">\n</tr>\n\n<tr ng2-st-thead-filters-row *ngIf=\"!isHideSubHeader\"\n                              class=\"ng2-smart-filters\"\n                              [grid]=\"grid\"\n                              [source]=\"source\"\n                              (create)=\"create.emit($event)\"\n                              (filter)=\"filter.emit($event)\">\n</tr>\n\n<tr ng2-st-thead-form-row *ngIf=\"grid.createFormShown\"\n                          [grid]=\"grid\"\n                          [createConfirm]=\"createConfirm\">\n</tr>\n"
+    })
+], Ng2SmartTableTheadComponent);
 
-class ActionsComponent {
+let ActionsComponent = class ActionsComponent {
     constructor() {
         this.create = new EventEmitter();
     }
@@ -1998,11 +2062,19 @@ class ActionsComponent {
         this.createButtonContent = this.grid.getSetting('add.createButtonContent');
         this.cancelButtonContent = this.grid.getSetting('add.cancelButtonContent');
     }
-}
-ActionsComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'ng2-st-actions',
-                template: `
+};
+__decorate([
+    Input(),
+    __metadata("design:type", Grid)
+], ActionsComponent.prototype, "grid", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], ActionsComponent.prototype, "create", void 0);
+ActionsComponent = __decorate([
+    Component({
+        selector: 'ng2-st-actions',
+        template: `
     <a href="#" class="ng2-smart-action ng2-smart-action-add-create"
         [innerHTML]="createButtonContent"
         (click)="$event.preventDefault();create.emit($event)"></a>
@@ -2010,14 +2082,10 @@ ActionsComponent.decorators = [
         [innerHTML]="cancelButtonContent"
         (click)="$event.preventDefault();grid.createFormShown = false;"></a>
   `
-            },] }
-];
-ActionsComponent.propDecorators = {
-    grid: [{ type: Input }],
-    create: [{ type: Output }]
-};
+    })
+], ActionsComponent);
 
-class ActionsTitleComponent {
+let ActionsTitleComponent = class ActionsTitleComponent {
     constructor(ref) {
         this.ref = ref;
     }
@@ -2027,23 +2095,22 @@ class ActionsTitleComponent {
     ngOnChanges() {
         this.actionsColumnTitle = this.grid.getSetting('actions.columnTitle');
     }
-}
-ActionsTitleComponent.decorators = [
-    { type: Component, args: [{
-                selector: '[ng2-st-actions-title]',
-                template: `
+};
+__decorate([
+    Input(),
+    __metadata("design:type", Grid)
+], ActionsTitleComponent.prototype, "grid", void 0);
+ActionsTitleComponent = __decorate([
+    Component({
+        selector: '[ng2-st-actions-title]',
+        template: `
     <div class="ng2-smart-title">{{ actionsColumnTitle }}</div>
   `
-            },] }
-];
-ActionsTitleComponent.ctorParameters = () => [
-    { type: ElementRef }
-];
-ActionsTitleComponent.propDecorators = {
-    grid: [{ type: Input }]
-};
+    }),
+    __metadata("design:paramtypes", [ElementRef])
+], ActionsTitleComponent);
 
-class AddButtonComponent {
+let AddButtonComponent = class AddButtonComponent {
     constructor(ref) {
         this.ref = ref;
         this.create = new EventEmitter();
@@ -2067,63 +2134,82 @@ class AddButtonComponent {
             this.grid.createFormShown = true;
         }
     }
-}
-AddButtonComponent.decorators = [
-    { type: Component, args: [{
-                selector: '[ng2-st-add-button]',
-                template: `
+};
+__decorate([
+    Input(),
+    __metadata("design:type", Grid)
+], AddButtonComponent.prototype, "grid", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", DataSource)
+], AddButtonComponent.prototype, "source", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], AddButtonComponent.prototype, "create", void 0);
+AddButtonComponent = __decorate([
+    Component({
+        selector: '[ng2-st-add-button]',
+        template: `
     <a *ngIf="isActionAdd" href="#" class="ng2-smart-action ng2-smart-action-add-add"
         [innerHTML]="addNewButtonContent" (click)="onAdd($event)"></a>
   `
-            },] }
-];
-AddButtonComponent.ctorParameters = () => [
-    { type: ElementRef }
-];
-AddButtonComponent.propDecorators = {
-    grid: [{ type: Input }],
-    source: [{ type: Input }],
-    create: [{ type: Output }]
-};
+    }),
+    __metadata("design:paramtypes", [ElementRef])
+], AddButtonComponent);
 
-class CheckboxSelectAllComponent {
-}
-CheckboxSelectAllComponent.decorators = [
-    { type: Component, args: [{
-                selector: '[ng2-st-checkbox-select-all]',
-                template: `
+let CheckboxSelectAllComponent = class CheckboxSelectAllComponent {
+};
+__decorate([
+    Input(),
+    __metadata("design:type", Grid)
+], CheckboxSelectAllComponent.prototype, "grid", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", DataSource)
+], CheckboxSelectAllComponent.prototype, "source", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", Boolean)
+], CheckboxSelectAllComponent.prototype, "isAllSelected", void 0);
+CheckboxSelectAllComponent = __decorate([
+    Component({
+        selector: '[ng2-st-checkbox-select-all]',
+        template: `
     <input type="checkbox" [ngModel]="isAllSelected">
   `
-            },] }
-];
-CheckboxSelectAllComponent.propDecorators = {
-    grid: [{ type: Input }],
-    source: [{ type: Input }],
-    isAllSelected: [{ type: Input }]
-};
+    })
+], CheckboxSelectAllComponent);
 
-class ColumnTitleComponent {
+let ColumnTitleComponent = class ColumnTitleComponent {
     constructor() {
         this.sort = new EventEmitter();
     }
-}
-ColumnTitleComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'ng2-st-column-title',
-                template: `
+};
+__decorate([
+    Input(),
+    __metadata("design:type", Column)
+], ColumnTitleComponent.prototype, "column", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", DataSource)
+], ColumnTitleComponent.prototype, "source", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], ColumnTitleComponent.prototype, "sort", void 0);
+ColumnTitleComponent = __decorate([
+    Component({
+        selector: 'ng2-st-column-title',
+        template: `
     <div class="ng2-smart-title">
       <ng2-smart-table-title [source]="source" [column]="column" (sort)="sort.emit($event)"></ng2-smart-table-title>
     </div>
   `
-            },] }
-];
-ColumnTitleComponent.propDecorators = {
-    column: [{ type: Input }],
-    source: [{ type: Input }],
-    sort: [{ type: Output }]
-};
+    })
+], ColumnTitleComponent);
 
-class TitleComponent {
+let TitleComponent = class TitleComponent {
     constructor() {
         this.currentDirection = '';
         this.sort = new EventEmitter();
@@ -2168,11 +2254,23 @@ class TitleComponent {
         }
         return this.currentDirection;
     }
-}
-TitleComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'ng2-smart-table-title',
-                template: `
+};
+__decorate([
+    Input(),
+    __metadata("design:type", Column)
+], TitleComponent.prototype, "column", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", DataSource)
+], TitleComponent.prototype, "source", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], TitleComponent.prototype, "sort", void 0);
+TitleComponent = __decorate([
+    Component({
+        selector: 'ng2-smart-table-title',
+        template: `
     <a href="#" *ngIf="column.isSortable"
                 (click)="_sort($event)"
                 class="ng2-smart-sort-link sort"
@@ -2181,16 +2279,11 @@ TitleComponent.decorators = [
     </a>
     <span class="ng2-smart-sort" *ngIf="!column.isSortable">{{ column.title }}</span>
   `,
-                styles: ["a.sort.asc,a.sort.desc{font-weight:700}a.sort.asc:after,a.sort.desc:after{border:4px solid transparent;border-bottom-color:rgba(0,0,0,.3);content:\"\";display:inline-block;height:0;margin-bottom:2px;width:0}a.sort.desc:after{margin-bottom:-2px;transform:rotate(-180deg)}"]
-            },] }
-];
-TitleComponent.propDecorators = {
-    column: [{ type: Input }],
-    source: [{ type: Input }],
-    sort: [{ type: Output }]
-};
+        styles: ["a.sort.asc,a.sort.desc{font-weight:700}a.sort.asc::after,a.sort.desc::after{content:\"\";display:inline-block;width:0;height:0;border-bottom:4px solid rgba(0,0,0,.3);border-top:4px solid transparent;border-left:4px solid transparent;border-right:4px solid transparent;margin-bottom:2px}a.sort.desc::after{-webkit-transform:rotate(-180deg);transform:rotate(-180deg);margin-bottom:-2px}"]
+    })
+], TitleComponent);
 
-class TheadFitlersRowComponent {
+let TheadFitlersRowComponent = class TheadFitlersRowComponent {
     constructor() {
         this.create = new EventEmitter();
         this.filter = new EventEmitter();
@@ -2201,20 +2294,33 @@ class TheadFitlersRowComponent {
         this.showActionColumnRight = this.grid.showActionColumn('right');
         this.filterInputClass = this.grid.getSetting('filter.inputClass');
     }
-    getVisibleColumns(columns) {
-        return (columns || []).filter((column) => !column.hide);
-    }
-}
-TheadFitlersRowComponent.decorators = [
-    { type: Component, args: [{
-                selector: '[ng2-st-thead-filters-row]',
-                template: `
+};
+__decorate([
+    Input(),
+    __metadata("design:type", Grid)
+], TheadFitlersRowComponent.prototype, "grid", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", DataSource)
+], TheadFitlersRowComponent.prototype, "source", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], TheadFitlersRowComponent.prototype, "create", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], TheadFitlersRowComponent.prototype, "filter", void 0);
+TheadFitlersRowComponent = __decorate([
+    Component({
+        selector: '[ng2-st-thead-filters-row]',
+        template: `
     <th *ngIf="isMultiSelectVisible"></th>
     <th ng2-st-add-button *ngIf="showActionColumnLeft"
                           [grid]="grid"
                           (create)="create.emit($event)">
     </th>
-    <th *ngFor="let column of getVisibleColumns(grid.getColumns())" class="ng2-smart-th {{ column.id }}">
+    <th *ngFor="let column of grid.getColumns()" class="ng2-smart-th {{ column.id }}">
       <ng2-smart-table-filter [source]="source"
                               [column]="column"
                               [inputClass]="filterInputClass"
@@ -2227,16 +2333,10 @@ TheadFitlersRowComponent.decorators = [
                           (create)="create.emit($event)">
     </th>
   `
-            },] }
-];
-TheadFitlersRowComponent.propDecorators = {
-    grid: [{ type: Input }],
-    source: [{ type: Input }],
-    create: [{ type: Output }],
-    filter: [{ type: Output }]
-};
+    })
+], TheadFitlersRowComponent);
 
-class TheadFormRowComponent {
+let TheadFormRowComponent = class TheadFormRowComponent {
     constructor() {
         this.create = new EventEmitter();
     }
@@ -2250,19 +2350,32 @@ class TheadFormRowComponent {
         this.showActionColumnRight = this.grid.showActionColumn('right');
         this.addInputClass = this.grid.getSetting('add.inputClass');
     }
-    getVisibleCells(cells) {
-        return (cells || []).filter((cell) => !cell.getColumn().hide);
-    }
-}
-TheadFormRowComponent.decorators = [
-    { type: Component, args: [{
-                selector: '[ng2-st-thead-form-row]',
-                template: `
+};
+__decorate([
+    Input(),
+    __metadata("design:type", Grid)
+], TheadFormRowComponent.prototype, "grid", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", Row)
+], TheadFormRowComponent.prototype, "row", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", EventEmitter)
+], TheadFormRowComponent.prototype, "createConfirm", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], TheadFormRowComponent.prototype, "create", void 0);
+TheadFormRowComponent = __decorate([
+    Component({
+        selector: '[ng2-st-thead-form-row]',
+        template: `
       <td *ngIf=""></td>
       <td  *ngIf="showActionColumnLeft"  class="ng2-smart-actions">
         <ng2-st-actions [grid]="grid" (create)="onCreate($event)"></ng2-st-actions>
       </td>
-      <td *ngFor="let cell of getVisibleCells(grid.getNewRow().getCells())">
+      <td *ngFor="let cell of grid.getNewRow().getCells()">
         <ng2-smart-table-cell [cell]="cell"
                               [grid]="grid"
                               [isNew]="true"
@@ -2276,16 +2389,10 @@ TheadFormRowComponent.decorators = [
         <ng2-st-actions [grid]="grid" (create)="onCreate($event)"></ng2-st-actions>
       </td>
   `
-            },] }
-];
-TheadFormRowComponent.propDecorators = {
-    grid: [{ type: Input }],
-    row: [{ type: Input }],
-    createConfirm: [{ type: Input }],
-    create: [{ type: Output }]
-};
+    })
+], TheadFormRowComponent);
 
-class TheadTitlesRowComponent {
+let TheadTitlesRowComponent = class TheadTitlesRowComponent {
     constructor() {
         this.sort = new EventEmitter();
         this.selectAllRows = new EventEmitter();
@@ -2295,14 +2402,31 @@ class TheadTitlesRowComponent {
         this.showActionColumnLeft = this.grid.showActionColumn('left');
         this.showActionColumnRight = this.grid.showActionColumn('right');
     }
-    getVisibleColumns(columns) {
-        return (columns || []).filter((column) => !column.hide);
-    }
-}
-TheadTitlesRowComponent.decorators = [
-    { type: Component, args: [{
-                selector: '[ng2-st-thead-titles-row]',
-                template: `
+};
+__decorate([
+    Input(),
+    __metadata("design:type", Grid)
+], TheadTitlesRowComponent.prototype, "grid", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", Boolean)
+], TheadTitlesRowComponent.prototype, "isAllSelected", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", DataSource)
+], TheadTitlesRowComponent.prototype, "source", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], TheadTitlesRowComponent.prototype, "sort", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], TheadTitlesRowComponent.prototype, "selectAllRows", void 0);
+TheadTitlesRowComponent = __decorate([
+    Component({
+        selector: '[ng2-st-thead-titles-row]',
+        template: `
     <th ng2-st-checkbox-select-all *ngIf="isMultiSelectVisible"
                                    [grid]="grid"
                                    [source]="source"
@@ -2310,23 +2434,14 @@ TheadTitlesRowComponent.decorators = [
                                    (click)="selectAllRows.emit($event)">
     </th>
     <th ng2-st-actions-title *ngIf="showActionColumnLeft" [grid]="grid"></th>
-    <th *ngFor="let column of getVisibleColumns(grid.getColumns())"
-        class="ng2-smart-th {{ column.id }}"
-        [ngClass]="column.class"
-        [style.width]="column.width">
+    <th *ngFor="let column of grid.getColumns()" class="ng2-smart-th {{ column.id }}" [ngClass]="column.class"
+      [style.width]="column.width" >
       <ng2-st-column-title [source]="source" [column]="column" (sort)="sort.emit($event)"></ng2-st-column-title>
     </th>
     <th ng2-st-actions-title *ngIf="showActionColumnRight" [grid]="grid"></th>
   `
-            },] }
-];
-TheadTitlesRowComponent.propDecorators = {
-    grid: [{ type: Input }],
-    isAllSelected: [{ type: Input }],
-    source: [{ type: Input }],
-    sort: [{ type: Output }],
-    selectAllRows: [{ type: Output }]
-};
+    })
+], TheadTitlesRowComponent);
 
 const THEAD_COMPONENTS = [
     ActionsComponent,
@@ -2340,24 +2455,24 @@ const THEAD_COMPONENTS = [
     TheadTitlesRowComponent,
     Ng2SmartTableTheadComponent,
 ];
-class THeadModule {
-}
-THeadModule.decorators = [
-    { type: NgModule, args: [{
-                imports: [
-                    CommonModule,
-                    FormsModule,
-                    FilterModule,
-                    CellModule,
-                ],
-                declarations: [
-                    ...THEAD_COMPONENTS,
-                ],
-                exports: [
-                    ...THEAD_COMPONENTS,
-                ],
-            },] }
-];
+let THeadModule = class THeadModule {
+};
+THeadModule = __decorate([
+    NgModule({
+        imports: [
+            CommonModule,
+            FormsModule,
+            FilterModule,
+            CellModule,
+        ],
+        declarations: [
+            ...THEAD_COMPONENTS,
+        ],
+        exports: [
+            ...THEAD_COMPONENTS,
+        ],
+    })
+], THeadModule);
 
 function compareValues(direction, a, b) {
     if (a < b) {
@@ -2620,11 +2735,10 @@ class LocalDataSource extends DataSource {
     }
 }
 
-class Ng2SmartTableComponent {
+let Ng2SmartTableComponent = class Ng2SmartTableComponent {
     constructor() {
         this.settings = {};
         this.rowSelect = new EventEmitter();
-        this.rowDeselect = new EventEmitter();
         this.userRowSelect = new EventEmitter();
         this.delete = new EventEmitter();
         this.edit = new EventEmitter();
@@ -2637,13 +2751,6 @@ class Ng2SmartTableComponent {
         this.defaultSettings = {
             mode: 'inline',
             selectMode: 'single',
-            /**
-             * Points to an element in all data
-             *
-             * when < 0 all lines must be deselected
-             */
-            selectedRowIndex: 0,
-            switchPageToSelectedRowPage: false,
             hideHeader: false,
             hideSubHeader: false,
             actions: {
@@ -2683,13 +2790,11 @@ class Ng2SmartTableComponent {
             columns: {},
             pager: {
                 display: true,
-                page: 1,
                 perPage: 10,
             },
-            rowClassFunction: () => '',
+            rowClassFunction: () => ""
         };
         this.isAllSelected = false;
-        this.destroyed$ = new Subject();
     }
     ngOnChanges(changes) {
         if (this.grid) {
@@ -2712,43 +2817,6 @@ class Ng2SmartTableComponent {
         this.isPagerDisplay = this.grid.getSetting('pager.display');
         this.perPageSelect = this.grid.getSetting('pager.perPageSelect');
         this.rowClassFunction = this.grid.getSetting('rowClassFunction');
-    }
-    ngOnDestroy() {
-        this.destroyed$.next();
-    }
-    selectRow(index, switchPageToSelectedRowPage = this.grid.getSetting('switchPageToSelectedRowPage')) {
-        if (!this.grid) {
-            return;
-        }
-        this.grid.settings.selectedRowIndex = index;
-        if (this.isIndexOutOfRange(index)) {
-            // we need to deselect all rows if we got an incorrect index
-            this.deselectAllRows();
-            return;
-        }
-        if (switchPageToSelectedRowPage) {
-            const source = this.source;
-            const paging = source.getPaging();
-            const page = getPageForRowIndex(index, paging.perPage);
-            index = index % paging.perPage;
-            this.grid.settings.selectedRowIndex = index;
-            if (page !== paging.page) {
-                source.setPage(page);
-                return;
-            }
-        }
-        const row = this.grid.getRows()[index];
-        if (row) {
-            this.onSelectRow(row);
-        }
-        else {
-            // we need to deselect all rows if we got an incorrect index
-            this.deselectAllRows();
-        }
-    }
-    deselectAllRows() {
-        this.grid.dataSet.deselectAll();
-        this.emitDeselectRow(null);
     }
     editRowSelect(row) {
         if (this.grid.getSetting('selectMode') === 'multi') {
@@ -2789,8 +2857,7 @@ class Ng2SmartTableComponent {
     initGrid() {
         this.source = this.prepareSource();
         this.grid = new Grid(this.source, this.prepareSettings());
-        this.subscribeToOnSelectRow();
-        this.subscribeToOnDeselectRow();
+        this.grid.onSelectRow().subscribe((row) => this.emitSelectRow(row));
     }
     prepareSource() {
         if (this.source instanceof DataSource) {
@@ -2826,94 +2893,91 @@ class Ng2SmartTableComponent {
         });
     }
     emitSelectRow(row) {
-        const data = {
-            data: row ? row.getData() : null,
-            isSelected: row ? row.getIsSelected() : null,
-            source: this.source,
-        };
-        this.rowSelect.emit(data);
-        if (!(row === null || row === void 0 ? void 0 : row.isSelected)) {
-            this.rowDeselect.emit(data);
-        }
-    }
-    emitDeselectRow(row) {
-        this.rowDeselect.emit({
+        this.rowSelect.emit({
             data: row ? row.getData() : null,
             isSelected: row ? row.getIsSelected() : null,
             source: this.source,
         });
     }
-    isIndexOutOfRange(index) {
-        var _a;
-        const dataAmount = (_a = this.source) === null || _a === void 0 ? void 0 : _a.count();
-        return index < 0 || (typeof dataAmount === 'number' && index >= dataAmount);
-    }
-    subscribeToOnSelectRow() {
-        if (this.onSelectRowSubscription) {
-            this.onSelectRowSubscription.unsubscribe();
-        }
-        this.onSelectRowSubscription = this.grid.onSelectRow()
-            .pipe(takeUntil(this.destroyed$))
-            .subscribe((row) => {
-            this.emitSelectRow(row);
-        });
-    }
-    subscribeToOnDeselectRow() {
-        if (this.onDeselectRowSubscription) {
-            this.onDeselectRowSubscription.unsubscribe();
-        }
-        this.onDeselectRowSubscription = this.grid.onDeselectRow()
-            .pipe(takeUntil(this.destroyed$))
-            .subscribe((row) => {
-            this.emitDeselectRow(row);
-        });
-    }
-}
-Ng2SmartTableComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'ng2-smart-table',
-                template: "<table [id]=\"tableId\" [ngClass]=\"tableClass\">\n\n  <thead ng2-st-thead *ngIf=\"!isHideHeader || !isHideSubHeader\"\n                      [grid]=\"grid\"\n                      [isAllSelected]=\"isAllSelected\"\n                      [source]=\"source\"\n                      [createConfirm]=\"createConfirm\"\n                      (create)=\"create.emit($event)\"\n                      (selectAllRows)=\"onSelectAllRows($event)\"\n                      (sort)=\"sort($event)\"\n                      (filter)=\"filter($event)\">\n  </thead>\n\n  <tbody ng2-st-tbody [grid]=\"grid\"\n                      [source]=\"source\"\n                      [deleteConfirm]=\"deleteConfirm\"\n                      [editConfirm]=\"editConfirm\"\n                      [rowClassFunction]=\"rowClassFunction\"\n                      (edit)=\"edit.emit($event)\"\n                      (delete)=\"delete.emit($event)\"\n                      (custom)=\"custom.emit($event)\"\n                      (userSelectRow)=\"onUserSelectRow($event)\"\n                      (editRowSelect)=\"editRowSelect($event)\"\n                      (multipleSelectRow)=\"multipleSelectRow($event)\"\n                      (rowHover)=\"onRowHover($event)\">\n  </tbody>\n\n</table>\n\n<ng2-smart-table-pager *ngIf=\"isPagerDisplay\"\n                        [source]=\"source\"\n                        [perPageSelect]=\"perPageSelect\"\n                        (changePage)=\"changePage($event)\">\n</ng2-smart-table-pager>\n",
-                styles: [":host{font-size:1rem}:host ::ng-deep *{box-sizing:border-box}:host ::ng-deep button,:host ::ng-deep input,:host ::ng-deep optgroup,:host ::ng-deep select,:host ::ng-deep textarea{color:inherit;font:inherit;margin:0}:host ::ng-deep table{border-collapse:collapse;border-spacing:0;display:table;line-height:1.5em;max-width:100%;overflow:auto;width:100%;word-break:normal;word-break:keep-all}:host ::ng-deep table tr th{font-weight:700}:host ::ng-deep table tr section{font-size:.75em;font-weight:700}:host ::ng-deep table tr td,:host ::ng-deep table tr th{font-size:.875em;margin:0;padding:.5em 1em}:host ::ng-deep a{color:#1e6bb8;text-decoration:none}:host ::ng-deep a:hover{text-decoration:underline}"]
-            },] }
-];
-Ng2SmartTableComponent.propDecorators = {
-    source: [{ type: Input }],
-    settings: [{ type: Input }],
-    rowSelect: [{ type: Output }],
-    rowDeselect: [{ type: Output }],
-    userRowSelect: [{ type: Output }],
-    delete: [{ type: Output }],
-    edit: [{ type: Output }],
-    create: [{ type: Output }],
-    custom: [{ type: Output }],
-    deleteConfirm: [{ type: Output }],
-    editConfirm: [{ type: Output }],
-    createConfirm: [{ type: Output }],
-    rowHover: [{ type: Output }]
 };
+__decorate([
+    Input(),
+    __metadata("design:type", Object)
+], Ng2SmartTableComponent.prototype, "source", void 0);
+__decorate([
+    Input(),
+    __metadata("design:type", Object)
+], Ng2SmartTableComponent.prototype, "settings", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableComponent.prototype, "rowSelect", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableComponent.prototype, "userRowSelect", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableComponent.prototype, "delete", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableComponent.prototype, "edit", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableComponent.prototype, "create", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableComponent.prototype, "custom", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableComponent.prototype, "deleteConfirm", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableComponent.prototype, "editConfirm", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", Object)
+], Ng2SmartTableComponent.prototype, "createConfirm", void 0);
+__decorate([
+    Output(),
+    __metadata("design:type", EventEmitter)
+], Ng2SmartTableComponent.prototype, "rowHover", void 0);
+Ng2SmartTableComponent = __decorate([
+    Component({
+        selector: 'ng2-smart-table',
+        template: "<table [id]=\"tableId\" [ngClass]=\"tableClass\">\n\n  <thead ng2-st-thead *ngIf=\"!isHideHeader || !isHideSubHeader\"\n                      [grid]=\"grid\"\n                      [isAllSelected]=\"isAllSelected\"\n                      [source]=\"source\"\n                      [createConfirm]=\"createConfirm\"\n                      (create)=\"create.emit($event)\"\n                      (selectAllRows)=\"onSelectAllRows($event)\"\n                      (sort)=\"sort($event)\"\n                      (filter)=\"filter($event)\">\n  </thead>\n\n  <tbody ng2-st-tbody [grid]=\"grid\"\n                      [source]=\"source\"\n                      [deleteConfirm]=\"deleteConfirm\"\n                      [editConfirm]=\"editConfirm\"\n                      [rowClassFunction]=\"rowClassFunction\"\n                      (edit)=\"edit.emit($event)\"\n                      (delete)=\"delete.emit($event)\"\n                      (custom)=\"custom.emit($event)\"\n                      (userSelectRow)=\"onUserSelectRow($event)\"\n                      (editRowSelect)=\"editRowSelect($event)\"\n                      (multipleSelectRow)=\"multipleSelectRow($event)\"\n                      (rowHover)=\"onRowHover($event)\">\n  </tbody>\n\n</table>\n\n<ng2-smart-table-pager *ngIf=\"isPagerDisplay\"\n                        [source]=\"source\"\n                        [perPageSelect]=\"perPageSelect\"\n                        (changePage)=\"changePage($event)\">\n</ng2-smart-table-pager>\n",
+        styles: [":host{font-size:1rem}:host ::ng-deep *{box-sizing:border-box}:host ::ng-deep button,:host ::ng-deep input,:host ::ng-deep optgroup,:host ::ng-deep select,:host ::ng-deep textarea{color:inherit;font:inherit;margin:0}:host ::ng-deep table{line-height:1.5em;border-collapse:collapse;border-spacing:0;display:table;width:100%;max-width:100%;overflow:auto;word-break:normal;word-break:keep-all}:host ::ng-deep table tr th{font-weight:700}:host ::ng-deep table tr section{font-size:.75em;font-weight:700}:host ::ng-deep table tr td,:host ::ng-deep table tr th{font-size:.875em;margin:0;padding:.5em 1em}:host ::ng-deep a{color:#1e6bb8;text-decoration:none}:host ::ng-deep a:hover{text-decoration:underline}"]
+    })
+], Ng2SmartTableComponent);
 
-class Ng2SmartTableModule {
-}
-Ng2SmartTableModule.decorators = [
-    { type: NgModule, args: [{
-                imports: [
-                    CommonModule,
-                    FormsModule,
-                    ReactiveFormsModule,
-                    CellModule,
-                    FilterModule,
-                    PagerModule,
-                    TBodyModule,
-                    THeadModule,
-                ],
-                declarations: [
-                    Ng2SmartTableComponent,
-                ],
-                exports: [
-                    Ng2SmartTableComponent,
-                ],
-            },] }
-];
+let Ng2SmartTableModule = class Ng2SmartTableModule {
+};
+Ng2SmartTableModule = __decorate([
+    NgModule({
+        imports: [
+            CommonModule,
+            FormsModule,
+            ReactiveFormsModule,
+            CellModule,
+            FilterModule,
+            PagerModule,
+            TBodyModule,
+            THeadModule,
+        ],
+        declarations: [
+            Ng2SmartTableComponent,
+        ],
+        exports: [
+            Ng2SmartTableComponent,
+        ],
+    })
+], Ng2SmartTableModule);
 
 class ServerSourceConf {
     constructor({ endPoint = '', sortFieldKey = '', sortDirKey = '', pagerPageKey = '', pagerLimitKey = '', filterFieldKey = '', totalKey = '', dataKey = '' } = {}) {
@@ -3023,9 +3087,5 @@ class ServerDataSource extends LocalDataSource {
     }
 }
 
-/**
- * Generated bundle index. Do not edit.
- */
-
-export { Cell, DefaultEditor, DefaultFilter, LocalDataSource, Ng2SmartTableComponent, Ng2SmartTableModule, ServerDataSource, CellModule as ɵa, CellComponent as ɵb, TbodyEditDeleteComponent as ɵba, TbodyCustomComponent as ɵbb, Ng2SmartTableTbodyComponent as ɵbc, THeadModule as ɵbd, ActionsComponent as ɵbe, ActionsTitleComponent as ɵbf, AddButtonComponent as ɵbg, CheckboxSelectAllComponent as ɵbh, ColumnTitleComponent as ɵbi, TitleComponent as ɵbj, TheadFitlersRowComponent as ɵbk, TheadFormRowComponent as ɵbl, TheadTitlesRowComponent as ɵbm, Ng2SmartTableTheadComponent as ɵbn, Row as ɵbo, DataSet as ɵbp, DataSource as ɵbq, EditCellDefault as ɵc, CustomEditComponent as ɵd, DefaultEditComponent as ɵe, EditCellComponent as ɵf, CheckboxEditorComponent as ɵg, CompleterEditorComponent as ɵh, InputEditorComponent as ɵi, SelectEditorComponent as ɵj, TextareaEditorComponent as ɵk, CustomViewComponent as ɵl, ViewCellComponent as ɵm, FilterModule as ɵn, FilterDefault as ɵo, FilterComponent as ɵp, DefaultFilterComponent as ɵq, CustomFilterComponent as ɵr, CheckboxFilterComponent as ɵs, CompleterFilterComponent as ɵt, InputFilterComponent as ɵu, SelectFilterComponent as ɵv, PagerModule as ɵw, PagerComponent as ɵx, TBodyModule as ɵy, TbodyCreateCancelComponent as ɵz };
+export { Cell, DefaultEditor, DefaultFilter, LocalDataSource, Ng2SmartTableModule, ServerDataSource, CellModule as ɵa, CellComponent as ɵb, TbodyEditDeleteComponent as ɵba, TbodyCustomComponent as ɵbb, Ng2SmartTableTbodyComponent as ɵbc, THeadModule as ɵbd, ActionsComponent as ɵbe, ActionsTitleComponent as ɵbf, AddButtonComponent as ɵbg, CheckboxSelectAllComponent as ɵbh, ColumnTitleComponent as ɵbi, TitleComponent as ɵbj, TheadFitlersRowComponent as ɵbk, TheadFormRowComponent as ɵbl, TheadTitlesRowComponent as ɵbm, Ng2SmartTableTheadComponent as ɵbn, Ng2SmartTableComponent as ɵbo, Row as ɵbp, DataSet as ɵbq, DataSource as ɵbr, CustomEditComponent as ɵc, EditCellDefault as ɵd, DefaultEditComponent as ɵe, EditCellComponent as ɵf, CheckboxEditorComponent as ɵg, CompleterEditorComponent as ɵh, InputEditorComponent as ɵi, SelectEditorComponent as ɵj, TextareaEditorComponent as ɵk, CustomViewComponent as ɵl, ViewCellComponent as ɵm, FilterModule as ɵn, FilterComponent as ɵo, FilterDefault as ɵp, DefaultFilterComponent as ɵq, CustomFilterComponent as ɵr, CheckboxFilterComponent as ɵs, CompleterFilterComponent as ɵt, InputFilterComponent as ɵu, SelectFilterComponent as ɵv, PagerModule as ɵw, PagerComponent as ɵx, TBodyModule as ɵy, TbodyCreateCancelComponent as ɵz };
 //# sourceMappingURL=ng2-smart-table.js.map

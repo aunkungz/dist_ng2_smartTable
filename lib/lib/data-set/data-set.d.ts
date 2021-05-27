@@ -16,15 +16,14 @@ export declare class DataSet {
     getLastRow(): Row;
     findRowByData(data: any): Row;
     deselectAll(): void;
-    selectRow(row: Row): Row | undefined;
+    selectRow(row: Row): Row;
     multipleSelectRow(row: Row): Row;
     selectPreviousRow(): Row;
-    selectFirstRow(): Row | undefined;
-    selectLastRow(): Row | undefined;
-    selectRowByIndex(index: number): Row | undefined;
+    selectFirstRow(): Row;
+    selectLastRow(): Row;
     willSelectFirstRow(): void;
     willSelectLastRow(): void;
-    select(selectedRowIndex?: number): Row | undefined;
+    select(): Row;
     createNewRow(): void;
     /**
      * Create columns by mapping from the settings

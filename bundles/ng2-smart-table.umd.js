@@ -1,1660 +1,71 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/core'), require('@angular/common'), require('@angular/forms'), require('ng2-completer'), require('rxjs/operators'), require('rxjs'), require('lodash'), require('@angular/common/http')) :
-    typeof define === 'function' && define.amd ? define('ng2-smart-table', ['exports', '@angular/core', '@angular/common', '@angular/forms', 'ng2-completer', 'rxjs/operators', 'rxjs', 'lodash', '@angular/common/http'], factory) :
-    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global['ng2-smart-table'] = {}, global.ng.core, global.ng.common, global.ng.forms, global.ng2Completer, global.rxjs.operators, global.rxjs, global.lodash, global.ng.common.http));
-}(this, (function (exports, core, common, forms, ng2Completer, operators, rxjs, lodash, http) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/core'), require('@angular/common'), require('@angular/forms'), require('ng2-completer'), require('rxjs'), require('lodash'), require('rxjs/operators'), require('@angular/common/http')) :
+    typeof define === 'function' && define.amd ? define('ng2-smart-table', ['exports', '@angular/core', '@angular/common', '@angular/forms', 'ng2-completer', 'rxjs', 'lodash', 'rxjs/operators', '@angular/common/http'], factory) :
+    (global = global || self, factory(global['ng2-smart-table'] = {}, global.ng.core, global.ng.common, global.ng.forms, global.ng2Completer, global.rxjs, global.lodash, global.rxjs.operators, global.ng.common.http));
+}(this, function (exports, core, common, forms, ng2Completer, rxjs, lodash, operators, http) { 'use strict';
 
     /*! *****************************************************************************
-    Copyright (c) Microsoft Corporation.
+    Copyright (c) Microsoft Corporation. All rights reserved.
+    Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+    this file except in compliance with the License. You may obtain a copy of the
+    License at http://www.apache.org/licenses/LICENSE-2.0
 
-    Permission to use, copy, modify, and/or distribute this software for any
-    purpose with or without fee is hereby granted.
+    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+    WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+    MERCHANTABLITY OR NON-INFRINGEMENT.
 
-    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-    REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-    AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-    INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-    LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-    OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-    PERFORMANCE OF THIS SOFTWARE.
+    See the Apache Version 2.0 License for specific language governing permissions
+    and limitations under the License.
     ***************************************************************************** */
     /* global Reflect, Promise */
-    var extendStatics = function (d, b) {
+
+    var extendStatics = function(d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b)
-                if (Object.prototype.hasOwnProperty.call(b, p))
-                    d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
+
     function __extends(d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     }
-    var __assign = function () {
-        __assign = Object.assign || function __assign(t) {
-            for (var s, i = 1, n = arguments.length; i < n; i++) {
-                s = arguments[i];
-                for (var p in s)
-                    if (Object.prototype.hasOwnProperty.call(s, p))
-                        t[p] = s[p];
-            }
-            return t;
-        };
-        return __assign.apply(this, arguments);
-    };
-    function __rest(s, e) {
-        var t = {};
-        for (var p in s)
-            if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-                t[p] = s[p];
-        if (s != null && typeof Object.getOwnPropertySymbols === "function")
-            for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-                if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                    t[p[i]] = s[p[i]];
-            }
-        return t;
-    }
+
     function __decorate(decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function")
-            r = Reflect.decorate(decorators, target, key, desc);
-        else
-            for (var i = decorators.length - 1; i >= 0; i--)
-                if (d = decorators[i])
-                    r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     }
-    function __param(paramIndex, decorator) {
-        return function (target, key) { decorator(target, key, paramIndex); };
-    }
+
     function __metadata(metadataKey, metadataValue) {
-        if (typeof Reflect === "object" && typeof Reflect.metadata === "function")
-            return Reflect.metadata(metadataKey, metadataValue);
+        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
     }
-    function __awaiter(thisArg, _arguments, P, generator) {
-        function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-        return new (P || (P = Promise))(function (resolve, reject) {
-            function fulfilled(value) { try {
-                step(generator.next(value));
-            }
-            catch (e) {
-                reject(e);
-            } }
-            function rejected(value) { try {
-                step(generator["throw"](value));
-            }
-            catch (e) {
-                reject(e);
-            } }
-            function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-            step((generator = generator.apply(thisArg, _arguments || [])).next());
-        });
-    }
-    function __generator(thisArg, body) {
-        var _ = { label: 0, sent: function () { if (t[0] & 1)
-                throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function () { return this; }), g;
-        function verb(n) { return function (v) { return step([n, v]); }; }
-        function step(op) {
-            if (f)
-                throw new TypeError("Generator is already executing.");
-            while (_)
-                try {
-                    if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done)
-                        return t;
-                    if (y = 0, t)
-                        op = [op[0] & 2, t.value];
-                    switch (op[0]) {
-                        case 0:
-                        case 1:
-                            t = op;
-                            break;
-                        case 4:
-                            _.label++;
-                            return { value: op[1], done: false };
-                        case 5:
-                            _.label++;
-                            y = op[1];
-                            op = [0];
-                            continue;
-                        case 7:
-                            op = _.ops.pop();
-                            _.trys.pop();
-                            continue;
-                        default:
-                            if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
-                                _ = 0;
-                                continue;
-                            }
-                            if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) {
-                                _.label = op[1];
-                                break;
-                            }
-                            if (op[0] === 6 && _.label < t[1]) {
-                                _.label = t[1];
-                                t = op;
-                                break;
-                            }
-                            if (t && _.label < t[2]) {
-                                _.label = t[2];
-                                _.ops.push(op);
-                                break;
-                            }
-                            if (t[2])
-                                _.ops.pop();
-                            _.trys.pop();
-                            continue;
-                    }
-                    op = body.call(thisArg, _);
-                }
-                catch (e) {
-                    op = [6, e];
-                    y = 0;
-                }
-                finally {
-                    f = t = 0;
-                }
-            if (op[0] & 5)
-                throw op[1];
-            return { value: op[0] ? op[1] : void 0, done: true };
-        }
-    }
-    var __createBinding = Object.create ? (function (o, m, k, k2) {
-        if (k2 === undefined)
-            k2 = k;
-        Object.defineProperty(o, k2, { enumerable: true, get: function () { return m[k]; } });
-    }) : (function (o, m, k, k2) {
-        if (k2 === undefined)
-            k2 = k;
-        o[k2] = m[k];
-    });
-    function __exportStar(m, o) {
-        for (var p in m)
-            if (p !== "default" && !Object.prototype.hasOwnProperty.call(o, p))
-                __createBinding(o, m, p);
-    }
-    function __values(o) {
-        var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-        if (m)
-            return m.call(o);
-        if (o && typeof o.length === "number")
-            return {
-                next: function () {
-                    if (o && i >= o.length)
-                        o = void 0;
-                    return { value: o && o[i++], done: !o };
-                }
-            };
-        throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-    }
+
     function __read(o, n) {
         var m = typeof Symbol === "function" && o[Symbol.iterator];
-        if (!m)
-            return o;
+        if (!m) return o;
         var i = m.call(o), r, ar = [], e;
         try {
-            while ((n === void 0 || n-- > 0) && !(r = i.next()).done)
-                ar.push(r.value);
+            while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
         }
-        catch (error) {
-            e = { error: error };
-        }
+        catch (error) { e = { error: error }; }
         finally {
             try {
-                if (r && !r.done && (m = i["return"]))
-                    m.call(i);
+                if (r && !r.done && (m = i["return"])) m.call(i);
             }
-            finally {
-                if (e)
-                    throw e.error;
-            }
+            finally { if (e) throw e.error; }
         }
         return ar;
     }
+
     function __spread() {
         for (var ar = [], i = 0; i < arguments.length; i++)
             ar = ar.concat(__read(arguments[i]));
         return ar;
     }
-    function __spreadArrays() {
-        for (var s = 0, i = 0, il = arguments.length; i < il; i++)
-            s += arguments[i].length;
-        for (var r = Array(s), k = 0, i = 0; i < il; i++)
-            for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-                r[k] = a[j];
-        return r;
-    }
-    ;
-    function __await(v) {
-        return this instanceof __await ? (this.v = v, this) : new __await(v);
-    }
-    function __asyncGenerator(thisArg, _arguments, generator) {
-        if (!Symbol.asyncIterator)
-            throw new TypeError("Symbol.asyncIterator is not defined.");
-        var g = generator.apply(thisArg, _arguments || []), i, q = [];
-        return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i;
-        function verb(n) { if (g[n])
-            i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; }
-        function resume(n, v) { try {
-            step(g[n](v));
-        }
-        catch (e) {
-            settle(q[0][3], e);
-        } }
-        function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r); }
-        function fulfill(value) { resume("next", value); }
-        function reject(value) { resume("throw", value); }
-        function settle(f, v) { if (f(v), q.shift(), q.length)
-            resume(q[0][0], q[0][1]); }
-    }
-    function __asyncDelegator(o) {
-        var i, p;
-        return i = {}, verb("next"), verb("throw", function (e) { throw e; }), verb("return"), i[Symbol.iterator] = function () { return this; }, i;
-        function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: n === "return" } : f ? f(v) : v; } : f; }
-    }
-    function __asyncValues(o) {
-        if (!Symbol.asyncIterator)
-            throw new TypeError("Symbol.asyncIterator is not defined.");
-        var m = o[Symbol.asyncIterator], i;
-        return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
-        function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
-        function settle(resolve, reject, d, v) { Promise.resolve(v).then(function (v) { resolve({ value: v, done: d }); }, reject); }
-    }
-    function __makeTemplateObject(cooked, raw) {
-        if (Object.defineProperty) {
-            Object.defineProperty(cooked, "raw", { value: raw });
-        }
-        else {
-            cooked.raw = raw;
-        }
-        return cooked;
-    }
-    ;
-    var __setModuleDefault = Object.create ? (function (o, v) {
-        Object.defineProperty(o, "default", { enumerable: true, value: v });
-    }) : function (o, v) {
-        o["default"] = v;
-    };
-    function __importStar(mod) {
-        if (mod && mod.__esModule)
-            return mod;
-        var result = {};
-        if (mod != null)
-            for (var k in mod)
-                if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k))
-                    __createBinding(result, mod, k);
-        __setModuleDefault(result, mod);
-        return result;
-    }
-    function __importDefault(mod) {
-        return (mod && mod.__esModule) ? mod : { default: mod };
-    }
-    function __classPrivateFieldGet(receiver, privateMap) {
-        if (!privateMap.has(receiver)) {
-            throw new TypeError("attempted to get private field on non-instance");
-        }
-        return privateMap.get(receiver);
-    }
-    function __classPrivateFieldSet(receiver, privateMap, value) {
-        if (!privateMap.has(receiver)) {
-            throw new TypeError("attempted to set private field on non-instance");
-        }
-        privateMap.set(receiver, value);
-        return value;
-    }
-
-    var CellComponent = /** @class */ (function () {
-        function CellComponent() {
-            this.inputClass = '';
-            this.mode = 'inline';
-            this.isInEditing = false;
-            this.edited = new core.EventEmitter();
-        }
-        CellComponent.prototype.onEdited = function (event) {
-            if (this.isNew) {
-                this.grid.create(this.grid.getNewRow(), this.createConfirm);
-            }
-            else {
-                this.grid.save(this.row, this.editConfirm);
-            }
-        };
-        return CellComponent;
-    }());
-    CellComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'ng2-smart-table-cell',
-                    template: "\n    <table-cell-view-mode *ngIf=\"!isInEditing\" [cell]=\"cell\"></table-cell-view-mode>\n    <table-cell-edit-mode *ngIf=\"isInEditing\" [cell]=\"cell\"\n                          [inputClass]=\"inputClass\"\n                          (edited)=\"onEdited($event)\">\n    </table-cell-edit-mode>\n  "
-                },] }
-    ];
-    CellComponent.propDecorators = {
-        grid: [{ type: core.Input }],
-        row: [{ type: core.Input }],
-        editConfirm: [{ type: core.Input }],
-        createConfirm: [{ type: core.Input }],
-        isNew: [{ type: core.Input }],
-        cell: [{ type: core.Input }],
-        inputClass: [{ type: core.Input }],
-        mode: [{ type: core.Input }],
-        isInEditing: [{ type: core.Input }],
-        edited: [{ type: core.Output }]
-    };
-
-    var EditCellDefault = /** @class */ (function () {
-        function EditCellDefault() {
-            this.inputClass = '';
-            this.edited = new core.EventEmitter();
-        }
-        EditCellDefault.prototype.onEdited = function (event) {
-            this.edited.next(event);
-            return false;
-        };
-        EditCellDefault.prototype.onStopEditing = function () {
-            this.cell.getRow().isInEditing = false;
-            return false;
-        };
-        EditCellDefault.prototype.onClick = function (event) {
-            event.stopPropagation();
-        };
-        return EditCellDefault;
-    }());
-    EditCellDefault.decorators = [
-        { type: core.Component, args: [{
-                    template: ''
-                },] }
-    ];
-    EditCellDefault.propDecorators = {
-        cell: [{ type: core.Input }],
-        inputClass: [{ type: core.Input }],
-        edited: [{ type: core.Output }]
-    };
-
-    var CustomEditComponent = /** @class */ (function (_super) {
-        __extends(CustomEditComponent, _super);
-        function CustomEditComponent(resolver) {
-            var _this = _super.call(this) || this;
-            _this.resolver = resolver;
-            return _this;
-        }
-        CustomEditComponent.prototype.ngOnChanges = function (changes) {
-            var _this = this;
-            if (this.cell && !this.customComponent) {
-                var componentFactory = this.resolver.resolveComponentFactory(this.cell.getColumn().editor.component);
-                this.customComponent = this.dynamicTarget.createComponent(componentFactory);
-                // set @Inputs and @Outputs of custom component
-                this.customComponent.instance.cell = this.cell;
-                this.customComponent.instance.inputClass = this.inputClass;
-                this.customComponent.instance.onStopEditing.subscribe(function () { return _this.onStopEditing(); });
-                this.customComponent.instance.onEdited.subscribe(function (event) { return _this.onEdited(event); });
-                this.customComponent.instance.onClick.subscribe(function (event) { return _this.onClick(event); });
-            }
-        };
-        CustomEditComponent.prototype.ngOnDestroy = function () {
-            if (this.customComponent) {
-                this.customComponent.destroy();
-            }
-        };
-        return CustomEditComponent;
-    }(EditCellDefault));
-    CustomEditComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'table-cell-custom-editor',
-                    template: "\n    <ng-template #dynamicTarget></ng-template>\n  "
-                },] }
-    ];
-    CustomEditComponent.ctorParameters = function () { return [
-        { type: core.ComponentFactoryResolver }
-    ]; };
-    CustomEditComponent.propDecorators = {
-        dynamicTarget: [{ type: core.ViewChild, args: ['dynamicTarget', { read: core.ViewContainerRef, static: true },] }]
-    };
-
-    var DefaultEditComponent = /** @class */ (function (_super) {
-        __extends(DefaultEditComponent, _super);
-        function DefaultEditComponent() {
-            return _super.call(this) || this;
-        }
-        DefaultEditComponent.prototype.getEditorType = function () {
-            return this.cell.getColumn().editor && this.cell.getColumn().editor.type;
-        };
-        return DefaultEditComponent;
-    }(EditCellDefault));
-    DefaultEditComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'table-cell-default-editor',
-                    template: "<div [ngSwitch]=\"getEditorType()\">\n    <select-editor *ngSwitchCase=\"'list'\"\n                   [cell]=\"cell\"\n                   [inputClass]=\"inputClass\"\n                   (onClick)=\"onClick($event)\"\n                   (onEdited)=\"onEdited($event)\"\n                   (onStopEditing)=\"onStopEditing()\">\n    </select-editor>\n\n    <textarea-editor *ngSwitchCase=\"'textarea'\"\n                     [cell]=\"cell\"\n                     [inputClass]=\"inputClass\"\n                     (onClick)=\"onClick($event)\"\n                     (onEdited)=\"onEdited($event)\"\n                     (onStopEditing)=\"onStopEditing()\">\n    </textarea-editor>\n\n    <checkbox-editor *ngSwitchCase=\"'checkbox'\"\n                     [cell]=\"cell\"\n                     [inputClass]=\"inputClass\"\n                     (onClick)=\"onClick($event)\">\n    </checkbox-editor>\n\n    <completer-editor *ngSwitchCase=\"'completer'\"\n                      [cell]=\"cell\">\n    </completer-editor>\n\n    <input-editor *ngSwitchDefault\n                  [cell]=\"cell\"\n                  [inputClass]=\"inputClass\"\n                  (onClick)=\"onClick($event)\"\n                  (onEdited)=\"onEdited($event)\"\n                  (onStopEditing)=\"onStopEditing()\">\n    </input-editor>\n</div>"
-                },] }
-    ];
-    DefaultEditComponent.ctorParameters = function () { return []; };
-
-    var EditCellComponent = /** @class */ (function () {
-        function EditCellComponent() {
-            this.inputClass = '';
-            this.edited = new core.EventEmitter();
-        }
-        EditCellComponent.prototype.onEdited = function (event) {
-            this.edited.next(event);
-            return false;
-        };
-        EditCellComponent.prototype.getEditorType = function () {
-            return this.cell.getColumn().editor && this.cell.getColumn().editor.type;
-        };
-        return EditCellComponent;
-    }());
-    EditCellComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'table-cell-edit-mode',
-                    template: "\n      <div [ngSwitch]=\"getEditorType()\">\n        <table-cell-custom-editor *ngSwitchCase=\"'custom'\"\n                                  [cell]=\"cell\"\n                                  [inputClass]=\"inputClass\"\n                                  (edited)=\"onEdited($event)\">\n        </table-cell-custom-editor>\n        <table-cell-default-editor *ngSwitchDefault\n                                  [cell]=\"cell\"\n                                  [inputClass]=\"inputClass\"\n                                  (edited)=\"onEdited($event)\">\n        </table-cell-default-editor>\n      </div>\n    "
-                },] }
-    ];
-    EditCellComponent.propDecorators = {
-        cell: [{ type: core.Input }],
-        inputClass: [{ type: core.Input }],
-        edited: [{ type: core.Output }]
-    };
-
-    var DefaultEditor = /** @class */ (function () {
-        function DefaultEditor() {
-            this.onStopEditing = new core.EventEmitter();
-            this.onEdited = new core.EventEmitter();
-            this.onClick = new core.EventEmitter();
-        }
-        return DefaultEditor;
-    }());
-    DefaultEditor.decorators = [
-        { type: core.Component, args: [{
-                    template: ''
-                },] }
-    ];
-    DefaultEditor.propDecorators = {
-        cell: [{ type: core.Input }],
-        inputClass: [{ type: core.Input }],
-        onStopEditing: [{ type: core.Output }],
-        onEdited: [{ type: core.Output }],
-        onClick: [{ type: core.Output }]
-    };
-
-    var CheckboxEditorComponent = /** @class */ (function (_super) {
-        __extends(CheckboxEditorComponent, _super);
-        function CheckboxEditorComponent() {
-            return _super.call(this) || this;
-        }
-        CheckboxEditorComponent.prototype.onChange = function (event) {
-            var trueVal = (this.cell.getColumn().getConfig() && this.cell.getColumn().getConfig().true) || true;
-            var falseVal = (this.cell.getColumn().getConfig() && this.cell.getColumn().getConfig().false) || false;
-            this.cell.newValue = event.target.checked ? trueVal : falseVal;
-        };
-        return CheckboxEditorComponent;
-    }(DefaultEditor));
-    CheckboxEditorComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'checkbox-editor',
-                    template: "\n    <input [ngClass]=\"inputClass\"\n           type=\"checkbox\"\n           class=\"form-control\"\n           [name]=\"cell.getId()\"\n           [disabled]=\"!cell.isEditable()\"\n           [checked]=\"cell.getValue() == (cell.getColumn().getConfig()?.true || true)\"\n           (click)=\"onClick.emit($event)\"\n           (change)=\"onChange($event)\">\n    ",
-                    styles: [":host input,:host textarea{line-height:normal;padding:.375em .75em;width:100%}"]
-                },] }
-    ];
-    CheckboxEditorComponent.ctorParameters = function () { return []; };
-
-    var CompleterEditorComponent = /** @class */ (function (_super) {
-        __extends(CompleterEditorComponent, _super);
-        function CompleterEditorComponent(completerService) {
-            var _this = _super.call(this) || this;
-            _this.completerService = completerService;
-            _this.completerStr = '';
-            return _this;
-        }
-        CompleterEditorComponent.prototype.ngOnInit = function () {
-            if (this.cell.getColumn().editor && this.cell.getColumn().editor.type === 'completer') {
-                var config = this.cell.getColumn().getConfig().completer;
-                config.dataService = this.completerService.local(config.data, config.searchFields, config.titleField);
-                config.dataService.descriptionField(config.descriptionField);
-            }
-        };
-        CompleterEditorComponent.prototype.onEditedCompleter = function (event) {
-            this.cell.newValue = event.title;
-            return false;
-        };
-        return CompleterEditorComponent;
-    }(DefaultEditor));
-    CompleterEditorComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'completer-editor',
-                    template: "\n    <ng2-completer [(ngModel)]=\"completerStr\"\n                   [dataService]=\"cell.getColumn().getConfig().completer.dataService\"\n                   [minSearchLength]=\"cell.getColumn().getConfig().completer.minSearchLength || 0\"\n                   [pause]=\"cell.getColumn().getConfig().completer.pause || 0\"\n                   [placeholder]=\"cell.getColumn().getConfig().completer.placeholder || 'Start typing...'\"\n                   (selected)=\"onEditedCompleter($event)\">\n    </ng2-completer>\n    "
-                },] }
-    ];
-    CompleterEditorComponent.ctorParameters = function () { return [
-        { type: ng2Completer.CompleterService }
-    ]; };
-
-    var InputEditorComponent = /** @class */ (function (_super) {
-        __extends(InputEditorComponent, _super);
-        function InputEditorComponent() {
-            return _super.call(this) || this;
-        }
-        return InputEditorComponent;
-    }(DefaultEditor));
-    InputEditorComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'input-editor',
-                    template: "\n    <input [ngClass]=\"inputClass\"\n           class=\"form-control\"\n           [(ngModel)]=\"cell.newValue\"\n           [name]=\"cell.getId()\"\n           [placeholder]=\"cell.getTitle()\"\n           [disabled]=\"!cell.isEditable()\"\n           (click)=\"onClick.emit($event)\"\n           (keydown.enter)=\"onEdited.emit($event)\"\n           (keydown.esc)=\"onStopEditing.emit()\">\n    ",
-                    styles: [":host input,:host textarea{line-height:normal;padding:.375em .75em;width:100%}"]
-                },] }
-    ];
-    InputEditorComponent.ctorParameters = function () { return []; };
-
-    var SelectEditorComponent = /** @class */ (function (_super) {
-        __extends(SelectEditorComponent, _super);
-        function SelectEditorComponent() {
-            return _super.call(this) || this;
-        }
-        return SelectEditorComponent;
-    }(DefaultEditor));
-    SelectEditorComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'select-editor',
-                    template: "\n    <select [ngClass]=\"inputClass\"\n            class=\"form-control\"\n            [(ngModel)]=\"cell.newValue\"\n            [name]=\"cell.getId()\"\n            [disabled]=\"!cell.isEditable()\"\n            (click)=\"onClick.emit($event)\"\n            (keydown.enter)=\"onEdited.emit($event)\"\n            (keydown.esc)=\"onStopEditing.emit()\">\n\n        <option *ngFor=\"let option of cell.getColumn().getConfig()?.list\" [value]=\"option.value\"\n                [selected]=\"option.value === cell.getValue()\">{{ option.title }}\n        </option>\n    </select>\n    "
-                },] }
-    ];
-    SelectEditorComponent.ctorParameters = function () { return []; };
-
-    var TextareaEditorComponent = /** @class */ (function (_super) {
-        __extends(TextareaEditorComponent, _super);
-        function TextareaEditorComponent() {
-            return _super.call(this) || this;
-        }
-        return TextareaEditorComponent;
-    }(DefaultEditor));
-    TextareaEditorComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'textarea-editor',
-                    template: "\n    <textarea [ngClass]=\"inputClass\"\n              class=\"form-control\"\n              [(ngModel)]=\"cell.newValue\"\n              [name]=\"cell.getId()\"\n              [disabled]=\"!cell.isEditable()\"\n              [placeholder]=\"cell.getTitle()\"\n              (click)=\"onClick.emit($event)\"\n              (keydown.enter)=\"onEdited.emit($event)\"\n              (keydown.esc)=\"onStopEditing.emit()\">\n    </textarea>\n    ",
-                    styles: [":host input,:host textarea{line-height:normal;padding:.375em .75em;width:100%}"]
-                },] }
-    ];
-    TextareaEditorComponent.ctorParameters = function () { return []; };
-
-    var CustomViewComponent = /** @class */ (function () {
-        function CustomViewComponent(resolver) {
-            this.resolver = resolver;
-        }
-        CustomViewComponent.prototype.ngOnInit = function () {
-            if (this.cell && !this.customComponent) {
-                this.createCustomComponent();
-                this.callOnComponentInit();
-                this.patchInstance();
-            }
-        };
-        CustomViewComponent.prototype.ngOnDestroy = function () {
-            if (this.customComponent) {
-                this.customComponent.destroy();
-            }
-        };
-        CustomViewComponent.prototype.createCustomComponent = function () {
-            var componentFactory = this.resolver.resolveComponentFactory(this.cell.getColumn().renderComponent);
-            this.customComponent = this.dynamicTarget.createComponent(componentFactory);
-        };
-        CustomViewComponent.prototype.callOnComponentInit = function () {
-            var onComponentInitFunction = this.cell.getColumn().getOnComponentInitFunction();
-            onComponentInitFunction && onComponentInitFunction(this.customComponent.instance);
-        };
-        CustomViewComponent.prototype.patchInstance = function () {
-            Object.assign(this.customComponent.instance, this.getPatch());
-        };
-        CustomViewComponent.prototype.getPatch = function () {
-            return {
-                value: this.cell.getValue(),
-                rowData: this.cell.getRow().getData()
-            };
-        };
-        return CustomViewComponent;
-    }());
-    CustomViewComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'custom-view-component',
-                    template: "\n    <ng-template #dynamicTarget></ng-template>\n  "
-                },] }
-    ];
-    CustomViewComponent.ctorParameters = function () { return [
-        { type: core.ComponentFactoryResolver }
-    ]; };
-    CustomViewComponent.propDecorators = {
-        cell: [{ type: core.Input }],
-        dynamicTarget: [{ type: core.ViewChild, args: ['dynamicTarget', { read: core.ViewContainerRef, static: true },] }]
-    };
-
-    var ViewCellComponent = /** @class */ (function () {
-        function ViewCellComponent() {
-        }
-        return ViewCellComponent;
-    }());
-    ViewCellComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'table-cell-view-mode',
-                    changeDetection: core.ChangeDetectionStrategy.OnPush,
-                    template: "\n    <div [ngSwitch]=\"cell.getColumn().type\">\n        <custom-view-component *ngSwitchCase=\"'custom'\" [cell]=\"cell\"></custom-view-component>\n        <div *ngSwitchCase=\"'html'\" [innerHTML]=\"cell.getValue()\"></div>\n        <div *ngSwitchDefault>{{ cell.getValue() }}</div>\n    </div>\n    "
-                },] }
-    ];
-    ViewCellComponent.propDecorators = {
-        cell: [{ type: core.Input }]
-    };
-
-    var CELL_COMPONENTS = [
-        CellComponent,
-        EditCellDefault,
-        DefaultEditor,
-        CustomEditComponent,
-        DefaultEditComponent,
-        EditCellComponent,
-        CheckboxEditorComponent,
-        CompleterEditorComponent,
-        InputEditorComponent,
-        SelectEditorComponent,
-        TextareaEditorComponent,
-        CustomViewComponent,
-        ViewCellComponent,
-    ];
-    var CellModule = /** @class */ (function () {
-        function CellModule() {
-        }
-        return CellModule;
-    }());
-    CellModule.decorators = [
-        { type: core.NgModule, args: [{
-                    imports: [
-                        common.CommonModule,
-                        forms.FormsModule,
-                        ng2Completer.Ng2CompleterModule,
-                    ],
-                    declarations: __spread(CELL_COMPONENTS),
-                    exports: __spread(CELL_COMPONENTS),
-                },] }
-    ];
-
-    var FilterDefault = /** @class */ (function () {
-        function FilterDefault() {
-            this.inputClass = '';
-            this.filter = new core.EventEmitter();
-            this.query = '';
-        }
-        FilterDefault.prototype.onFilter = function (query) {
-            this.source.addFilter({
-                field: this.column.id,
-                search: query,
-                filter: this.column.getFilterFunction(),
-            });
-        };
-        return FilterDefault;
-    }());
-    FilterDefault.decorators = [
-        { type: core.Component, args: [{
-                    template: ''
-                },] }
-    ];
-    FilterDefault.propDecorators = {
-        column: [{ type: core.Input }],
-        source: [{ type: core.Input }],
-        inputClass: [{ type: core.Input }],
-        filter: [{ type: core.Output }]
-    };
-
-    var FilterComponent = /** @class */ (function (_super) {
-        __extends(FilterComponent, _super);
-        function FilterComponent() {
-            var _this = _super.apply(this, __spread(arguments)) || this;
-            _this.query = '';
-            return _this;
-        }
-        FilterComponent.prototype.ngOnChanges = function (changes) {
-            var _this = this;
-            if (changes.source) {
-                if (!changes.source.firstChange) {
-                    this.dataChangedSub.unsubscribe();
-                }
-                this.dataChangedSub = this.source.onChanged().subscribe(function (dataChanges) {
-                    var filterConf = _this.source.getFilter();
-                    if (filterConf && filterConf.filters && filterConf.filters.length === 0) {
-                        _this.query = '';
-                        // add a check for existing filters an set the query if one exists for this column
-                        // this covers instances where the filter is set by user code while maintaining existing functionality
-                    }
-                    else if (filterConf && filterConf.filters && filterConf.filters.length > 0) {
-                        filterConf.filters.forEach(function (k, v) {
-                            if (k.field == _this.column.id) {
-                                _this.query = k.search;
-                            }
-                        });
-                    }
-                });
-            }
-        };
-        return FilterComponent;
-    }(FilterDefault));
-    FilterComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'ng2-smart-table-filter',
-                    template: "\n      <div class=\"ng2-smart-filter\" *ngIf=\"column.isFilterable\" [ngSwitch]=\"column.getFilterType()\">\n        <custom-table-filter *ngSwitchCase=\"'custom'\"\n                             [query]=\"query\"\n                             [column]=\"column\"\n                             [source]=\"source\"\n                             [inputClass]=\"inputClass\"\n                             (filter)=\"onFilter($event)\">\n        </custom-table-filter>\n        <default-table-filter *ngSwitchDefault\n                              [query]=\"query\"\n                              [column]=\"column\"\n                              [source]=\"source\"\n                              [inputClass]=\"inputClass\"\n                              (filter)=\"onFilter($event)\">\n        </default-table-filter>\n      </div>\n    ",
-                    styles: [":host .ng2-smart-filter ::ng-deep input,:host .ng2-smart-filter ::ng-deep select{font-weight:400;line-height:normal;padding:.375em .75em;width:100%}:host .ng2-smart-filter ::ng-deep input[type=search]{box-sizing:inherit}:host .ng2-smart-filter ::ng-deep .completer-dropdown-holder,:host .ng2-smart-filter ::ng-deep a{font-weight:400}"]
-                },] }
-    ];
-
-    var DefaultFilterComponent = /** @class */ (function (_super) {
-        __extends(DefaultFilterComponent, _super);
-        function DefaultFilterComponent() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        return DefaultFilterComponent;
-    }(FilterDefault));
-    DefaultFilterComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'default-table-filter',
-                    template: "\n    <ng-container [ngSwitch]=\"column.getFilterType()\">\n      <select-filter *ngSwitchCase=\"'list'\"\n                     [query]=\"query\"\n                     [ngClass]=\"inputClass\"\n                     [column]=\"column\"\n                     (filter)=\"onFilter($event)\">\n      </select-filter>\n      <checkbox-filter *ngSwitchCase=\"'checkbox'\"\n                       [query]=\"query\"\n                       [ngClass]=\"inputClass\"\n                       [column]=\"column\"\n                       (filter)=\"onFilter($event)\">\n      </checkbox-filter>\n      <completer-filter *ngSwitchCase=\"'completer'\"\n                        [query]=\"query\"\n                        [ngClass]=\"inputClass\"\n                        [column]=\"column\"\n                        (filter)=\"onFilter($event)\">\n      </completer-filter>\n      <input-filter *ngSwitchDefault\n                    [query]=\"query\"\n                    [ngClass]=\"inputClass\"\n                    [column]=\"column\"\n                    (filter)=\"onFilter($event)\">\n      </input-filter>\n    </ng-container>\n  "
-                },] }
-    ];
-    DefaultFilterComponent.propDecorators = {
-        query: [{ type: core.Input }]
-    };
-
-    var CustomFilterComponent = /** @class */ (function (_super) {
-        __extends(CustomFilterComponent, _super);
-        function CustomFilterComponent(resolver) {
-            var _this = _super.call(this) || this;
-            _this.resolver = resolver;
-            return _this;
-        }
-        CustomFilterComponent.prototype.ngOnChanges = function (changes) {
-            var _this = this;
-            if (this.column && !this.customComponent) {
-                var componentFactory = this.resolver.resolveComponentFactory(this.column.filter.component);
-                this.customComponent = this.dynamicTarget.createComponent(componentFactory);
-                // set @Inputs and @Outputs of custom component
-                this.customComponent.instance.query = this.query;
-                this.customComponent.instance.column = this.column;
-                this.customComponent.instance.source = this.source;
-                this.customComponent.instance.inputClass = this.inputClass;
-                this.customComponent.instance.filter.subscribe(function (event) { return _this.onFilter(event); });
-            }
-            if (this.customComponent) {
-                this.customComponent.instance.ngOnChanges(changes);
-            }
-        };
-        CustomFilterComponent.prototype.ngOnDestroy = function () {
-            if (this.customComponent) {
-                this.customComponent.destroy();
-            }
-        };
-        return CustomFilterComponent;
-    }(FilterDefault));
-    CustomFilterComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'custom-table-filter',
-                    template: "<ng-template #dynamicTarget></ng-template>"
-                },] }
-    ];
-    CustomFilterComponent.ctorParameters = function () { return [
-        { type: core.ComponentFactoryResolver }
-    ]; };
-    CustomFilterComponent.propDecorators = {
-        query: [{ type: core.Input }],
-        dynamicTarget: [{ type: core.ViewChild, args: ['dynamicTarget', { read: core.ViewContainerRef, static: true },] }]
-    };
-
-    var DefaultFilter = /** @class */ (function () {
-        function DefaultFilter() {
-            this.delay = 300;
-            this.filter = new core.EventEmitter();
-        }
-        DefaultFilter.prototype.ngOnDestroy = function () {
-            if (this.changesSubscription) {
-                this.changesSubscription.unsubscribe();
-            }
-        };
-        DefaultFilter.prototype.setFilter = function () {
-            this.filter.emit(this.query);
-        };
-        return DefaultFilter;
-    }());
-    DefaultFilter.decorators = [
-        { type: core.Component, args: [{
-                    template: ''
-                },] }
-    ];
-    DefaultFilter.propDecorators = {
-        query: [{ type: core.Input }],
-        inputClass: [{ type: core.Input }],
-        column: [{ type: core.Input }],
-        filter: [{ type: core.Output }]
-    };
-
-    var CheckboxFilterComponent = /** @class */ (function (_super) {
-        __extends(CheckboxFilterComponent, _super);
-        function CheckboxFilterComponent() {
-            var _this = _super.call(this) || this;
-            _this.filterActive = false;
-            _this.inputControl = new forms.FormControl();
-            return _this;
-        }
-        CheckboxFilterComponent.prototype.ngOnInit = function () {
-            var _this = this;
-            this.changesSubscription = this.inputControl.valueChanges
-                .pipe(operators.debounceTime(this.delay))
-                .subscribe(function (checked) {
-                _this.filterActive = true;
-                var trueVal = (_this.column.getFilterConfig() && _this.column.getFilterConfig().true) || true;
-                var falseVal = (_this.column.getFilterConfig() && _this.column.getFilterConfig().false) || false;
-                _this.query = checked ? trueVal : falseVal;
-                _this.setFilter();
-            });
-        };
-        CheckboxFilterComponent.prototype.resetFilter = function (event) {
-            event.preventDefault();
-            this.query = '';
-            this.inputControl.setValue(false, { emitEvent: false });
-            this.filterActive = false;
-            this.setFilter();
-        };
-        return CheckboxFilterComponent;
-    }(DefaultFilter));
-    CheckboxFilterComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'checkbox-filter',
-                    template: "\n    <input type=\"checkbox\" [formControl]=\"inputControl\" [ngClass]=\"inputClass\" class=\"form-control\">\n    <a href=\"#\" *ngIf=\"filterActive\"\n                (click)=\"resetFilter($event)\">{{column.getFilterConfig()?.resetText || 'reset'}}</a>\n  "
-                },] }
-    ];
-    CheckboxFilterComponent.ctorParameters = function () { return []; };
-
-    var CompleterFilterComponent = /** @class */ (function (_super) {
-        __extends(CompleterFilterComponent, _super);
-        function CompleterFilterComponent(completerService) {
-            var _this = _super.call(this) || this;
-            _this.completerService = completerService;
-            _this.completerContent = new rxjs.Subject();
-            return _this;
-        }
-        CompleterFilterComponent.prototype.ngOnInit = function () {
-            var _this = this;
-            var config = this.column.getFilterConfig().completer;
-            config.dataService = this.completerService.local(config.data, config.searchFields, config.titleField);
-            config.dataService.descriptionField(config.descriptionField);
-            this.changesSubscription = this.completerContent
-                .pipe(operators.map(function (ev) { return (ev && ev.title) || ev || ''; }), operators.distinctUntilChanged(), operators.debounceTime(this.delay))
-                .subscribe(function (search) {
-                _this.query = search;
-                _this.setFilter();
-            });
-        };
-        CompleterFilterComponent.prototype.inputTextChanged = function (event) {
-            // workaround to trigger the search event when the home/end buttons are clicked
-            // when this happens the [(ngModel)]="query" is set to "" but the (selected) method is not called
-            // so here it gets called manually
-            if (event === '') {
-                this.completerContent.next(event);
-            }
-        };
-        return CompleterFilterComponent;
-    }(DefaultFilter));
-    CompleterFilterComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'completer-filter',
-                    template: "\n    <ng2-completer [(ngModel)]=\"query\"\n                   (ngModelChange)=\"inputTextChanged($event)\"\n                   [dataService]=\"column.getFilterConfig().completer.dataService\"\n                   [minSearchLength]=\"column.getFilterConfig().completer.minSearchLength || 0\"\n                   [pause]=\"column.getFilterConfig().completer.pause || 0\"\n                   [placeholder]=\"column.getFilterConfig().completer.placeholder || 'Start typing...'\"\n                   (selected)=\"completerContent.next($event)\">\n    </ng2-completer>\n  "
-                },] }
-    ];
-    CompleterFilterComponent.ctorParameters = function () { return [
-        { type: ng2Completer.CompleterService }
-    ]; };
-
-    var InputFilterComponent = /** @class */ (function (_super) {
-        __extends(InputFilterComponent, _super);
-        function InputFilterComponent() {
-            var _this = _super.call(this) || this;
-            _this.inputControl = new forms.FormControl();
-            return _this;
-        }
-        InputFilterComponent.prototype.ngOnInit = function () {
-            var _this = this;
-            if (this.query) {
-                this.inputControl.setValue(this.query);
-            }
-            this.inputControl.valueChanges
-                .pipe(operators.distinctUntilChanged(), operators.debounceTime(this.delay))
-                .subscribe(function (value) {
-                _this.query = _this.inputControl.value;
-                _this.setFilter();
-            });
-        };
-        InputFilterComponent.prototype.ngOnChanges = function (changes) {
-            if (changes.query) {
-                this.inputControl.setValue(this.query);
-            }
-        };
-        return InputFilterComponent;
-    }(DefaultFilter));
-    InputFilterComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'input-filter',
-                    template: "\n    <input\n      [ngClass]=\"inputClass\"\n      [formControl]=\"inputControl\"\n      class=\"form-control\"\n      type=\"text\"\n      placeholder=\"{{ column.title }}\"/>\n  "
-                },] }
-    ];
-    InputFilterComponent.ctorParameters = function () { return []; };
-
-    var SelectFilterComponent = /** @class */ (function (_super) {
-        __extends(SelectFilterComponent, _super);
-        function SelectFilterComponent() {
-            return _super.call(this) || this;
-        }
-        SelectFilterComponent.prototype.ngOnInit = function () {
-            var _this = this;
-            this.inputControl.valueChanges
-                .pipe(operators.skip(1), operators.distinctUntilChanged(), operators.debounceTime(this.delay))
-                .subscribe(function (value) { return _this.setFilter(); });
-        };
-        return SelectFilterComponent;
-    }(DefaultFilter));
-    SelectFilterComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'select-filter',
-                    template: "\n    <select [ngClass]=\"inputClass\"\n            class=\"form-control\"\n            #inputControl\n            [(ngModel)]=\"query\">\n\n        <option value=\"\">{{ column.getFilterConfig().selectText }}</option>\n        <option *ngFor=\"let option of column.getFilterConfig().list\" [value]=\"option.value\">\n          {{ option.title }}\n        </option>\n    </select>\n  "
-                },] }
-    ];
-    SelectFilterComponent.ctorParameters = function () { return []; };
-    SelectFilterComponent.propDecorators = {
-        inputControl: [{ type: core.ViewChild, args: ['inputControl', { read: forms.NgControl, static: true },] }]
-    };
-
-    var FILTER_COMPONENTS = [
-        FilterDefault,
-        DefaultFilter,
-        FilterComponent,
-        DefaultFilterComponent,
-        CustomFilterComponent,
-        CheckboxFilterComponent,
-        CompleterFilterComponent,
-        InputFilterComponent,
-        SelectFilterComponent,
-    ];
-    var FilterModule = /** @class */ (function () {
-        function FilterModule() {
-        }
-        return FilterModule;
-    }());
-    FilterModule.decorators = [
-        { type: core.NgModule, args: [{
-                    imports: [
-                        common.CommonModule,
-                        forms.FormsModule,
-                        forms.ReactiveFormsModule,
-                        ng2Completer.Ng2CompleterModule,
-                    ],
-                    declarations: __spread(FILTER_COMPONENTS),
-                    exports: __spread(FILTER_COMPONENTS),
-                },] }
-    ];
-
-    var PagerComponent = /** @class */ (function () {
-        function PagerComponent() {
-            this.perPageSelect = [];
-            this.changePage = new core.EventEmitter();
-            this.count = 0;
-        }
-        PagerComponent.prototype.ngOnChanges = function (changes) {
-            var _this = this;
-            if (changes.source) {
-                if (!changes.source.firstChange) {
-                    this.dataChangedSub.unsubscribe();
-                }
-                this.dataChangedSub = this.source.onChanged().subscribe(function (dataChanges) {
-                    _this.page = _this.source.getPaging().page;
-                    _this.perPage = _this.source.getPaging().perPage;
-                    _this.currentPerPage = _this.perPage;
-                    _this.count = _this.source.count();
-                    if (_this.isPageOutOfBounce()) {
-                        _this.source.setPage(--_this.page);
-                    }
-                    _this.processPageChange(dataChanges);
-                    _this.initPages();
-                });
-            }
-        };
-        /**
-         * We change the page here depending on the action performed against data source
-         * if a new element was added to the end of the table - then change the page to the last
-         * if a new element was added to the beginning of the table - then to the first page
-         * @param changes
-         */
-        PagerComponent.prototype.processPageChange = function (changes) {
-            if (changes['action'] === 'prepend') {
-                this.source.setPage(1);
-            }
-            if (changes['action'] === 'append') {
-                this.source.setPage(this.getLast());
-            }
-        };
-        PagerComponent.prototype.shouldShow = function () {
-            return this.source.count() > this.perPage;
-        };
-        PagerComponent.prototype.paginate = function (page) {
-            this.source.setPage(page);
-            this.page = page;
-            this.changePage.emit({ page: page });
-            return false;
-        };
-        PagerComponent.prototype.next = function () {
-            return this.paginate(this.getPage() + 1);
-        };
-        PagerComponent.prototype.prev = function () {
-            return this.paginate(this.getPage() - 1);
-        };
-        PagerComponent.prototype.getPage = function () {
-            return this.page;
-        };
-        PagerComponent.prototype.getPages = function () {
-            return this.pages;
-        };
-        PagerComponent.prototype.getLast = function () {
-            return Math.ceil(this.count / this.perPage);
-        };
-        PagerComponent.prototype.isPageOutOfBounce = function () {
-            return (this.page * this.perPage) >= (this.count + this.perPage) && this.page > 1;
-        };
-        PagerComponent.prototype.initPages = function () {
-            var pagesCount = this.getLast();
-            var showPagesCount = 10;
-            showPagesCount = pagesCount < showPagesCount ? pagesCount : showPagesCount;
-            this.pages = [];
-            if (this.shouldShow()) {
-                var middleOne = Math.ceil(showPagesCount / 2);
-                middleOne = this.page >= middleOne ? this.page : middleOne;
-                var lastOne = middleOne + Math.floor(showPagesCount / 2);
-                lastOne = lastOne >= pagesCount ? pagesCount : lastOne;
-                var firstOne = lastOne - showPagesCount + 1;
-                for (var i = firstOne; i <= lastOne; i++) {
-                    this.pages.push(i);
-                }
-            }
-        };
-        PagerComponent.prototype.onChangePerPage = function (event) {
-            if (this.currentPerPage) {
-                if (typeof this.currentPerPage === 'string' && this.currentPerPage.toLowerCase() === 'all') {
-                    this.source.getPaging().perPage = null;
-                }
-                else {
-                    this.source.getPaging().perPage = this.currentPerPage * 1;
-                    this.source.refresh();
-                }
-                this.initPages();
-            }
-        };
-        return PagerComponent;
-    }());
-    PagerComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'ng2-smart-table-pager',
-                    template: "\n    <nav *ngIf=\"shouldShow()\" class=\"ng2-smart-pagination-nav\">\n      <ul class=\"ng2-smart-pagination pagination\">\n        <li class=\"ng2-smart-page-item page-item\" [ngClass]=\"{disabled: getPage() == 1}\">\n          <a class=\"ng2-smart-page-link page-link\" href=\"#\"\n          (click)=\"getPage() == 1 ? false : paginate(1)\" aria-label=\"First\">\n            <span aria-hidden=\"true\">&laquo;</span>\n            <span class=\"sr-only\">First</span>\n          </a>\n        </li>\n        <li class=\"ng2-smart-page-item page-item\" [ngClass]=\"{disabled: getPage() == 1}\">\n          <a class=\"ng2-smart-page-link page-link page-link-prev\" href=\"#\"\n             (click)=\"getPage() == 1 ? false : prev()\" aria-label=\"Prev\">\n            <span aria-hidden=\"true\">&lt;</span>\n            <span class=\"sr-only\">Prev</span>\n          </a>\n        </li>\n        <li class=\"ng2-smart-page-item page-item\"\n        [ngClass]=\"{active: getPage() == page}\" *ngFor=\"let page of getPages()\">\n          <span class=\"ng2-smart-page-link page-link\"\n          *ngIf=\"getPage() == page\">{{ page }} <span class=\"sr-only\">(current)</span></span>\n          <a class=\"ng2-smart-page-link page-link\" href=\"#\"\n          (click)=\"paginate(page)\" *ngIf=\"getPage() != page\">{{ page }}</a>\n        </li>\n\n        <li class=\"ng2-smart-page-item page-item\"\n            [ngClass]=\"{disabled: getPage() == getLast()}\">\n          <a class=\"ng2-smart-page-link page-link page-link-next\" href=\"#\"\n             (click)=\"getPage() == getLast() ? false : next()\" aria-label=\"Next\">\n            <span aria-hidden=\"true\">&gt;</span>\n            <span class=\"sr-only\">Next</span>\n          </a>\n        </li>\n        \n        <li class=\"ng2-smart-page-item page-item\"\n        [ngClass]=\"{disabled: getPage() == getLast()}\">\n          <a class=\"ng2-smart-page-link page-link\" href=\"#\"\n          (click)=\"getPage() == getLast() ? false : paginate(getLast())\" aria-label=\"Last\">\n            <span aria-hidden=\"true\">&raquo;</span>\n            <span class=\"sr-only\">Last</span>\n          </a>\n        </li>\n      </ul>\n    </nav>\n    \n    <nav *ngIf=\"perPageSelect && perPageSelect.length > 0\" class=\"ng2-smart-pagination-per-page\">\n      <label for=\"per-page\">\n        Per Page:\n      </label>\n      <select (change)=\"onChangePerPage($event)\" [(ngModel)]=\"currentPerPage\" id=\"per-page\">\n        <option *ngFor=\"let item of perPageSelect\" [value]=\"item\">{{ item }}</option>\n      </select>\n    </nav>\n  ",
-                    styles: [".ng2-smart-pagination{display:inline-flex;font-size:.875em;padding:0}.ng2-smart-pagination .sr-only{border:0;clip:rect(0,0,0,0);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px}.ng2-smart-pagination .ng2-smart-page-item{display:inline}.ng2-smart-pagination .page-link-next,.ng2-smart-pagination .page-link-prev{font-size:10px}:host{display:flex;justify-content:space-between}:host label,:host select{margin:1rem 0 1rem 1rem}:host label{line-height:2.5rem}"]
-                },] }
-    ];
-    PagerComponent.propDecorators = {
-        source: [{ type: core.Input }],
-        perPageSelect: [{ type: core.Input }],
-        changePage: [{ type: core.Output }]
-    };
-
-    var PagerModule = /** @class */ (function () {
-        function PagerModule() {
-        }
-        return PagerModule;
-    }());
-    PagerModule.decorators = [
-        { type: core.NgModule, args: [{
-                    imports: [
-                        common.CommonModule,
-                        forms.FormsModule,
-                    ],
-                    declarations: [
-                        PagerComponent,
-                    ],
-                    exports: [
-                        PagerComponent,
-                    ],
-                },] }
-    ];
-
-    var Ng2SmartTableTbodyComponent = /** @class */ (function () {
-        function Ng2SmartTableTbodyComponent() {
-            this.save = new core.EventEmitter();
-            this.cancel = new core.EventEmitter();
-            this.edit = new core.EventEmitter();
-            this.delete = new core.EventEmitter();
-            this.custom = new core.EventEmitter();
-            this.edited = new core.EventEmitter();
-            this.userSelectRow = new core.EventEmitter();
-            this.editRowSelect = new core.EventEmitter();
-            this.multipleSelectRow = new core.EventEmitter();
-            this.rowHover = new core.EventEmitter();
-        }
-        Object.defineProperty(Ng2SmartTableTbodyComponent.prototype, "tableColumnsCount", {
-            get: function () {
-                var actionColumns = this.isActionAdd || this.isActionEdit || this.isActionDelete ? 1 : 0;
-                return this.grid.getColumns().length + actionColumns;
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Ng2SmartTableTbodyComponent.prototype.ngOnChanges = function () {
-            this.isMultiSelectVisible = this.grid.isMultiSelectVisible();
-            this.showActionColumnLeft = this.grid.showActionColumn('left');
-            this.mode = this.grid.getSetting('mode');
-            this.editInputClass = this.grid.getSetting('edit.inputClass');
-            this.showActionColumnRight = this.grid.showActionColumn('right');
-            this.isActionAdd = this.grid.getSetting('actions.add');
-            this.isActionEdit = this.grid.getSetting('actions.edit');
-            this.isActionDelete = this.grid.getSetting('actions.delete');
-            this.noDataMessage = this.grid.getSetting('noDataMessage');
-        };
-        Ng2SmartTableTbodyComponent.prototype.getVisibleCells = function (cells) {
-            return (cells || []).filter(function (cell) { return !cell.getColumn().hide; });
-        };
-        return Ng2SmartTableTbodyComponent;
-    }());
-    Ng2SmartTableTbodyComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: '[ng2-st-tbody]',
-                    template: "<tr *ngFor=\"let row of grid.getRows()\" (click)=\"userSelectRow.emit(row)\" (mouseover)=\"rowHover.emit(row)\" class=\"ng2-smart-row\" [className]=\"rowClassFunction(row)\" [ngClass]=\"{selected: row.isSelected}\">\n  <td *ngIf=\"isMultiSelectVisible\" class=\"ng2-smart-actions ng2-smart-action-multiple-select\" (click)=\"multipleSelectRow.emit(row)\">\n    <input type=\"checkbox\" class=\"form-control\" [ngModel]=\"row.isSelected\">\n  </td>\n  <td *ngIf=\"!row.isInEditing && showActionColumnLeft\" class=\"ng2-smart-actions\">\n    <ng2-st-tbody-custom [grid]=\"grid\" (custom)=\"custom.emit($event)\" [row]=\"row\" [source]=\"source\"></ng2-st-tbody-custom>\n\n    <ng2-st-tbody-edit-delete [grid]=\"grid\"\n                              [deleteConfirm]=\"deleteConfirm\"\n                              [editConfirm]=\"editConfirm\"\n                              (edit)=\"edit.emit(row)\"\n                              (delete)=\"delete.emit(row)\"\n                              (editRowSelect)=\"editRowSelect.emit($event)\"\n                              [row]=\"row\"\n                              [source]=\"source\">\n    </ng2-st-tbody-edit-delete>\n  </td>\n   <td *ngIf=\"row.isInEditing && showActionColumnLeft\"  class=\"ng2-smart-actions\">\n    <ng2-st-tbody-create-cancel [grid]=\"grid\" [row]=\"row\" [editConfirm]=\"editConfirm\"></ng2-st-tbody-create-cancel>\n  </td>\n  <td *ngFor=\"let cell of getVisibleCells(row.cells)\">\n    <ng2-smart-table-cell [cell]=\"cell\"\n                          [grid]=\"grid\"\n                          [row]=\"row\"\n                          [isNew]=\"false\"\n                          [mode]=\"mode\"\n                          [editConfirm]=\"editConfirm\"\n                          [inputClass]=\"editInputClass\"\n                          [isInEditing]=\"row.isInEditing\">\n    </ng2-smart-table-cell>\n  </td>\n\n  <td *ngIf=\"row.isInEditing && showActionColumnRight\"  class=\"ng2-smart-actions\">\n    <ng2-st-tbody-create-cancel [grid]=\"grid\" [row]=\"row\" [editConfirm]=\"editConfirm\"></ng2-st-tbody-create-cancel>\n  </td>\n\n  <td *ngIf=\"!row.isInEditing && showActionColumnRight\" class=\"ng2-smart-actions\">\n    <ng2-st-tbody-custom [grid]=\"grid\" (custom)=\"custom.emit($event)\" [row]=\"row\" [source]=\"source\"></ng2-st-tbody-custom>\n\n    <ng2-st-tbody-edit-delete [grid]=\"grid\"\n                              [deleteConfirm]=\"deleteConfirm\"\n                              [editConfirm]=\"editConfirm\"\n                              [row]=\"row\"\n                              [source]=\"source\"\n                              (edit)=\"edit.emit(row)\"\n                              (delete)=\"delete.emit(row)\"\n                              (editRowSelect)=\"editRowSelect.emit($event)\">\n    </ng2-st-tbody-edit-delete>\n  </td>\n</tr>\n\n<tr *ngIf=\"grid.getRows().length == 0\">\n  <td [attr.colspan]=\"tableColumnsCount\">\n    {{ noDataMessage }}\n  </td>\n</tr>\n",
-                    styles: [":host .ng2-smart-row.selected{background:rgba(0,0,0,.05)}:host .ng2-smart-row .ng2-smart-actions.ng2-smart-action-multiple-select{text-align:center}:host ::ng-deep ng2-st-tbody-create-cancel a:first-child,:host ::ng-deep ng2-st-tbody-edit-delete a:first-child{margin-right:.25rem}"]
-                },] }
-    ];
-    Ng2SmartTableTbodyComponent.propDecorators = {
-        grid: [{ type: core.Input }],
-        source: [{ type: core.Input }],
-        deleteConfirm: [{ type: core.Input }],
-        editConfirm: [{ type: core.Input }],
-        rowClassFunction: [{ type: core.Input }],
-        save: [{ type: core.Output }],
-        cancel: [{ type: core.Output }],
-        edit: [{ type: core.Output }],
-        delete: [{ type: core.Output }],
-        custom: [{ type: core.Output }],
-        edited: [{ type: core.Output }],
-        userSelectRow: [{ type: core.Output }],
-        editRowSelect: [{ type: core.Output }],
-        multipleSelectRow: [{ type: core.Output }],
-        rowHover: [{ type: core.Output }]
-    };
-
-    var TbodyCreateCancelComponent = /** @class */ (function () {
-        function TbodyCreateCancelComponent() {
-        }
-        TbodyCreateCancelComponent.prototype.onSave = function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            this.grid.save(this.row, this.editConfirm);
-        };
-        TbodyCreateCancelComponent.prototype.onCancelEdit = function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            this.row.isInEditing = false;
-        };
-        TbodyCreateCancelComponent.prototype.ngOnChanges = function () {
-            this.saveButtonContent = this.grid.getSetting('edit.saveButtonContent');
-            this.cancelButtonContent = this.grid.getSetting('edit.cancelButtonContent');
-        };
-        return TbodyCreateCancelComponent;
-    }());
-    TbodyCreateCancelComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'ng2-st-tbody-create-cancel',
-                    template: "\n    <a href=\"#\" class=\"ng2-smart-action ng2-smart-action-edit-save\"\n        [innerHTML]=\"saveButtonContent\" (click)=\"onSave($event)\"></a>\n    <a href=\"#\" class=\"ng2-smart-action ng2-smart-action-edit-cancel\"\n        [innerHTML]=\"cancelButtonContent\" (click)=\"onCancelEdit($event)\"></a>\n  "
-                },] }
-    ];
-    TbodyCreateCancelComponent.propDecorators = {
-        grid: [{ type: core.Input }],
-        row: [{ type: core.Input }],
-        editConfirm: [{ type: core.Input }]
-    };
-
-    var TbodyEditDeleteComponent = /** @class */ (function () {
-        function TbodyEditDeleteComponent() {
-            this.edit = new core.EventEmitter();
-            this.delete = new core.EventEmitter();
-            this.editRowSelect = new core.EventEmitter();
-        }
-        TbodyEditDeleteComponent.prototype.onEdit = function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            this.editRowSelect.emit(this.row);
-            if (this.grid.getSetting('mode') === 'external') {
-                this.edit.emit({
-                    data: this.row.getData(),
-                    source: this.source,
-                });
-            }
-            else {
-                this.grid.edit(this.row);
-            }
-        };
-        TbodyEditDeleteComponent.prototype.onDelete = function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            if (this.grid.getSetting('mode') === 'external') {
-                this.delete.emit({
-                    data: this.row.getData(),
-                    source: this.source,
-                });
-            }
-            else {
-                this.grid.delete(this.row, this.deleteConfirm);
-            }
-        };
-        TbodyEditDeleteComponent.prototype.ngOnChanges = function () {
-            this.isActionEdit = this.grid.getSetting('actions.edit');
-            this.isActionDelete = this.grid.getSetting('actions.delete');
-            this.editRowButtonContent = this.grid.getSetting('edit.editButtonContent');
-            this.deleteRowButtonContent = this.grid.getSetting('delete.deleteButtonContent');
-        };
-        return TbodyEditDeleteComponent;
-    }());
-    TbodyEditDeleteComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'ng2-st-tbody-edit-delete',
-                    changeDetection: core.ChangeDetectionStrategy.OnPush,
-                    template: "\n    <a href=\"#\" *ngIf=\"isActionEdit\" class=\"ng2-smart-action ng2-smart-action-edit-edit\"\n        [innerHTML]=\"editRowButtonContent\" (click)=\"onEdit($event)\"></a>\n    <a href=\"#\" *ngIf=\"isActionDelete\" class=\"ng2-smart-action ng2-smart-action-delete-delete\"\n        [innerHTML]=\"deleteRowButtonContent\" (click)=\"onDelete($event)\"></a>\n  "
-                },] }
-    ];
-    TbodyEditDeleteComponent.propDecorators = {
-        grid: [{ type: core.Input }],
-        row: [{ type: core.Input }],
-        source: [{ type: core.Input }],
-        deleteConfirm: [{ type: core.Input }],
-        editConfirm: [{ type: core.Input }],
-        edit: [{ type: core.Output }],
-        delete: [{ type: core.Output }],
-        editRowSelect: [{ type: core.Output }]
-    };
-
-    var TbodyCustomComponent = /** @class */ (function () {
-        function TbodyCustomComponent() {
-            this.custom = new core.EventEmitter();
-        }
-        TbodyCustomComponent.prototype.onCustom = function (action, event) {
-            event.preventDefault();
-            event.stopPropagation();
-            this.custom.emit({
-                action: action.name,
-                data: this.row.getData(),
-                source: this.source
-            });
-        };
-        return TbodyCustomComponent;
-    }());
-    TbodyCustomComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'ng2-st-tbody-custom',
-                    changeDetection: core.ChangeDetectionStrategy.OnPush,
-                    template: "\n      <a *ngFor=\"let action of grid.getSetting('actions.custom')\" href=\"#\"\n         class=\"ng2-smart-action ng2-smart-action-custom-custom\" \n         [innerHTML]=\"action.title\"\n         (click)=\"onCustom(action, $event)\"></a>\n        "
-                },] }
-    ];
-    TbodyCustomComponent.propDecorators = {
-        grid: [{ type: core.Input }],
-        row: [{ type: core.Input }],
-        source: [{ type: core.Input }],
-        custom: [{ type: core.Output }]
-    };
-
-    var TBODY_COMPONENTS = [
-        TbodyCreateCancelComponent,
-        TbodyEditDeleteComponent,
-        TbodyCustomComponent,
-        Ng2SmartTableTbodyComponent
-    ];
-    var TBodyModule = /** @class */ (function () {
-        function TBodyModule() {
-        }
-        return TBodyModule;
-    }());
-    TBodyModule.decorators = [
-        { type: core.NgModule, args: [{
-                    imports: [
-                        common.CommonModule,
-                        forms.FormsModule,
-                        CellModule,
-                    ],
-                    declarations: __spread(TBODY_COMPONENTS),
-                    exports: __spread(TBODY_COMPONENTS),
-                },] }
-    ];
-
-    var Ng2SmartTableTheadComponent = /** @class */ (function () {
-        function Ng2SmartTableTheadComponent() {
-            this.sort = new core.EventEmitter();
-            this.selectAllRows = new core.EventEmitter();
-            this.create = new core.EventEmitter();
-            this.filter = new core.EventEmitter();
-        }
-        Ng2SmartTableTheadComponent.prototype.ngOnChanges = function () {
-            this.isHideHeader = this.grid.getSetting('hideHeader');
-            this.isHideSubHeader = this.grid.getSetting('hideSubHeader');
-        };
-        return Ng2SmartTableTheadComponent;
-    }());
-    Ng2SmartTableTheadComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: '[ng2-st-thead]',
-                    template: "<tr ng2-st-thead-titles-row *ngIf=\"!isHideHeader\"\n                            class=\"ng2-smart-titles\"\n                            [grid]=\"grid\"\n                            [isAllSelected]=\"isAllSelected\"\n                            [source]=\"source\"\n                            (sort)=\"sort.emit($event)\"\n                            (selectAllRows)=\"selectAllRows.emit($event)\">\n</tr>\n\n<tr ng2-st-thead-filters-row *ngIf=\"!isHideSubHeader\"\n                              class=\"ng2-smart-filters\"\n                              [grid]=\"grid\"\n                              [source]=\"source\"\n                              (create)=\"create.emit($event)\"\n                              (filter)=\"filter.emit($event)\">\n</tr>\n\n<tr ng2-st-thead-form-row *ngIf=\"grid.createFormShown\"\n                          [grid]=\"grid\"\n                          [createConfirm]=\"createConfirm\">\n</tr>\n"
-                },] }
-    ];
-    Ng2SmartTableTheadComponent.propDecorators = {
-        grid: [{ type: core.Input }],
-        source: [{ type: core.Input }],
-        isAllSelected: [{ type: core.Input }],
-        createConfirm: [{ type: core.Input }],
-        sort: [{ type: core.Output }],
-        selectAllRows: [{ type: core.Output }],
-        create: [{ type: core.Output }],
-        filter: [{ type: core.Output }]
-    };
-
-    var ActionsComponent = /** @class */ (function () {
-        function ActionsComponent() {
-            this.create = new core.EventEmitter();
-        }
-        ActionsComponent.prototype.ngOnChanges = function () {
-            this.createButtonContent = this.grid.getSetting('add.createButtonContent');
-            this.cancelButtonContent = this.grid.getSetting('add.cancelButtonContent');
-        };
-        return ActionsComponent;
-    }());
-    ActionsComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'ng2-st-actions',
-                    template: "\n    <a href=\"#\" class=\"ng2-smart-action ng2-smart-action-add-create\"\n        [innerHTML]=\"createButtonContent\"\n        (click)=\"$event.preventDefault();create.emit($event)\"></a>\n    <a href=\"#\" class=\"ng2-smart-action ng2-smart-action-add-cancel\"\n        [innerHTML]=\"cancelButtonContent\"\n        (click)=\"$event.preventDefault();grid.createFormShown = false;\"></a>\n  "
-                },] }
-    ];
-    ActionsComponent.propDecorators = {
-        grid: [{ type: core.Input }],
-        create: [{ type: core.Output }]
-    };
-
-    var ActionsTitleComponent = /** @class */ (function () {
-        function ActionsTitleComponent(ref) {
-            this.ref = ref;
-        }
-        ActionsTitleComponent.prototype.ngAfterViewInit = function () {
-            this.ref.nativeElement.classList.add('ng2-smart-actions');
-        };
-        ActionsTitleComponent.prototype.ngOnChanges = function () {
-            this.actionsColumnTitle = this.grid.getSetting('actions.columnTitle');
-        };
-        return ActionsTitleComponent;
-    }());
-    ActionsTitleComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: '[ng2-st-actions-title]',
-                    template: "\n    <div class=\"ng2-smart-title\">{{ actionsColumnTitle }}</div>\n  "
-                },] }
-    ];
-    ActionsTitleComponent.ctorParameters = function () { return [
-        { type: core.ElementRef }
-    ]; };
-    ActionsTitleComponent.propDecorators = {
-        grid: [{ type: core.Input }]
-    };
-
-    var AddButtonComponent = /** @class */ (function () {
-        function AddButtonComponent(ref) {
-            this.ref = ref;
-            this.create = new core.EventEmitter();
-        }
-        AddButtonComponent.prototype.ngAfterViewInit = function () {
-            this.ref.nativeElement.classList.add('ng2-smart-actions-title', 'ng2-smart-actions-title-add');
-        };
-        AddButtonComponent.prototype.ngOnChanges = function () {
-            this.isActionAdd = this.grid.getSetting('actions.add');
-            this.addNewButtonContent = this.grid.getSetting('add.addButtonContent');
-        };
-        AddButtonComponent.prototype.onAdd = function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            if (this.grid.getSetting('mode') === 'external') {
-                this.create.emit({
-                    source: this.source,
-                });
-            }
-            else {
-                this.grid.createFormShown = true;
-            }
-        };
-        return AddButtonComponent;
-    }());
-    AddButtonComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: '[ng2-st-add-button]',
-                    template: "\n    <a *ngIf=\"isActionAdd\" href=\"#\" class=\"ng2-smart-action ng2-smart-action-add-add\"\n        [innerHTML]=\"addNewButtonContent\" (click)=\"onAdd($event)\"></a>\n  "
-                },] }
-    ];
-    AddButtonComponent.ctorParameters = function () { return [
-        { type: core.ElementRef }
-    ]; };
-    AddButtonComponent.propDecorators = {
-        grid: [{ type: core.Input }],
-        source: [{ type: core.Input }],
-        create: [{ type: core.Output }]
-    };
-
-    var CheckboxSelectAllComponent = /** @class */ (function () {
-        function CheckboxSelectAllComponent() {
-        }
-        return CheckboxSelectAllComponent;
-    }());
-    CheckboxSelectAllComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: '[ng2-st-checkbox-select-all]',
-                    template: "\n    <input type=\"checkbox\" [ngModel]=\"isAllSelected\">\n  "
-                },] }
-    ];
-    CheckboxSelectAllComponent.propDecorators = {
-        grid: [{ type: core.Input }],
-        source: [{ type: core.Input }],
-        isAllSelected: [{ type: core.Input }]
-    };
-
-    var ColumnTitleComponent = /** @class */ (function () {
-        function ColumnTitleComponent() {
-            this.sort = new core.EventEmitter();
-        }
-        return ColumnTitleComponent;
-    }());
-    ColumnTitleComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'ng2-st-column-title',
-                    template: "\n    <div class=\"ng2-smart-title\">\n      <ng2-smart-table-title [source]=\"source\" [column]=\"column\" (sort)=\"sort.emit($event)\"></ng2-smart-table-title>\n    </div>\n  "
-                },] }
-    ];
-    ColumnTitleComponent.propDecorators = {
-        column: [{ type: core.Input }],
-        source: [{ type: core.Input }],
-        sort: [{ type: core.Output }]
-    };
-
-    var TitleComponent = /** @class */ (function () {
-        function TitleComponent() {
-            this.currentDirection = '';
-            this.sort = new core.EventEmitter();
-        }
-        TitleComponent.prototype.ngOnChanges = function (changes) {
-            var _this = this;
-            if (changes.source) {
-                if (!changes.source.firstChange) {
-                    this.dataChangedSub.unsubscribe();
-                }
-                this.dataChangedSub = this.source.onChanged().subscribe(function (dataChanges) {
-                    var sortConf = _this.source.getSort();
-                    if (sortConf.length > 0 && sortConf[0]['field'] === _this.column.id) {
-                        _this.currentDirection = sortConf[0]['direction'];
-                    }
-                    else {
-                        _this.currentDirection = '';
-                    }
-                    sortConf.forEach(function (fieldConf) {
-                    });
-                });
-            }
-        };
-        TitleComponent.prototype._sort = function (event) {
-            event.preventDefault();
-            this.changeSortDirection();
-            this.source.setSort([
-                {
-                    field: this.column.id,
-                    direction: this.currentDirection,
-                    compare: this.column.getCompareFunction(),
-                },
-            ]);
-            this.sort.emit(null);
-        };
-        TitleComponent.prototype.changeSortDirection = function () {
-            if (this.currentDirection) {
-                var newDirection = this.currentDirection === 'asc' ? 'desc' : 'asc';
-                this.currentDirection = newDirection;
-            }
-            else {
-                this.currentDirection = this.column.sortDirection;
-            }
-            return this.currentDirection;
-        };
-        return TitleComponent;
-    }());
-    TitleComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'ng2-smart-table-title',
-                    template: "\n    <a href=\"#\" *ngIf=\"column.isSortable\"\n                (click)=\"_sort($event)\"\n                class=\"ng2-smart-sort-link sort\"\n                [ngClass]=\"currentDirection\">\n      {{ column.title }}\n    </a>\n    <span class=\"ng2-smart-sort\" *ngIf=\"!column.isSortable\">{{ column.title }}</span>\n  ",
-                    styles: ["a.sort.asc,a.sort.desc{font-weight:700}a.sort.asc:after,a.sort.desc:after{border:4px solid transparent;border-bottom-color:rgba(0,0,0,.3);content:\"\";display:inline-block;height:0;margin-bottom:2px;width:0}a.sort.desc:after{margin-bottom:-2px;transform:rotate(-180deg)}"]
-                },] }
-    ];
-    TitleComponent.propDecorators = {
-        column: [{ type: core.Input }],
-        source: [{ type: core.Input }],
-        sort: [{ type: core.Output }]
-    };
-
-    var TheadFitlersRowComponent = /** @class */ (function () {
-        function TheadFitlersRowComponent() {
-            this.create = new core.EventEmitter();
-            this.filter = new core.EventEmitter();
-        }
-        TheadFitlersRowComponent.prototype.ngOnChanges = function () {
-            this.isMultiSelectVisible = this.grid.isMultiSelectVisible();
-            this.showActionColumnLeft = this.grid.showActionColumn('left');
-            this.showActionColumnRight = this.grid.showActionColumn('right');
-            this.filterInputClass = this.grid.getSetting('filter.inputClass');
-        };
-        TheadFitlersRowComponent.prototype.getVisibleColumns = function (columns) {
-            return (columns || []).filter(function (column) { return !column.hide; });
-        };
-        return TheadFitlersRowComponent;
-    }());
-    TheadFitlersRowComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: '[ng2-st-thead-filters-row]',
-                    template: "\n    <th *ngIf=\"isMultiSelectVisible\"></th>\n    <th ng2-st-add-button *ngIf=\"showActionColumnLeft\"\n                          [grid]=\"grid\"\n                          (create)=\"create.emit($event)\">\n    </th>\n    <th *ngFor=\"let column of getVisibleColumns(grid.getColumns())\" class=\"ng2-smart-th {{ column.id }}\">\n      <ng2-smart-table-filter [source]=\"source\"\n                              [column]=\"column\"\n                              [inputClass]=\"filterInputClass\"\n                              (filter)=\"filter.emit($event)\">\n      </ng2-smart-table-filter>\n    </th>\n    <th ng2-st-add-button *ngIf=\"showActionColumnRight\"\n                          [grid]=\"grid\"\n                          [source]=\"source\"\n                          (create)=\"create.emit($event)\">\n    </th>\n  "
-                },] }
-    ];
-    TheadFitlersRowComponent.propDecorators = {
-        grid: [{ type: core.Input }],
-        source: [{ type: core.Input }],
-        create: [{ type: core.Output }],
-        filter: [{ type: core.Output }]
-    };
-
-    var TheadFormRowComponent = /** @class */ (function () {
-        function TheadFormRowComponent() {
-            this.create = new core.EventEmitter();
-        }
-        TheadFormRowComponent.prototype.onCreate = function (event) {
-            event.stopPropagation();
-            this.grid.create(this.grid.getNewRow(), this.createConfirm);
-        };
-        TheadFormRowComponent.prototype.ngOnChanges = function () {
-            this.isMultiSelectVisible = this.grid.isMultiSelectVisible();
-            this.showActionColumnLeft = this.grid.showActionColumn('left');
-            this.showActionColumnRight = this.grid.showActionColumn('right');
-            this.addInputClass = this.grid.getSetting('add.inputClass');
-        };
-        TheadFormRowComponent.prototype.getVisibleCells = function (cells) {
-            return (cells || []).filter(function (cell) { return !cell.getColumn().hide; });
-        };
-        return TheadFormRowComponent;
-    }());
-    TheadFormRowComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: '[ng2-st-thead-form-row]',
-                    template: "\n      <td *ngIf=\"\"></td>\n      <td  *ngIf=\"showActionColumnLeft\"  class=\"ng2-smart-actions\">\n        <ng2-st-actions [grid]=\"grid\" (create)=\"onCreate($event)\"></ng2-st-actions>\n      </td>\n      <td *ngFor=\"let cell of getVisibleCells(grid.getNewRow().getCells())\">\n        <ng2-smart-table-cell [cell]=\"cell\"\n                              [grid]=\"grid\"\n                              [isNew]=\"true\"\n                              [createConfirm]=\"createConfirm\"\n                              [inputClass]=\"addInputClass\"\n                              [isInEditing]=\"grid.getNewRow().isInEditing\"\n                              (edited)=\"onCreate($event)\">\n        </ng2-smart-table-cell>\n      </td>\n      <td  *ngIf=\"showActionColumnRight\"  class=\"ng2-smart-actions\">\n        <ng2-st-actions [grid]=\"grid\" (create)=\"onCreate($event)\"></ng2-st-actions>\n      </td>\n  "
-                },] }
-    ];
-    TheadFormRowComponent.propDecorators = {
-        grid: [{ type: core.Input }],
-        row: [{ type: core.Input }],
-        createConfirm: [{ type: core.Input }],
-        create: [{ type: core.Output }]
-    };
-
-    var TheadTitlesRowComponent = /** @class */ (function () {
-        function TheadTitlesRowComponent() {
-            this.sort = new core.EventEmitter();
-            this.selectAllRows = new core.EventEmitter();
-        }
-        TheadTitlesRowComponent.prototype.ngOnChanges = function () {
-            this.isMultiSelectVisible = this.grid.isMultiSelectVisible();
-            this.showActionColumnLeft = this.grid.showActionColumn('left');
-            this.showActionColumnRight = this.grid.showActionColumn('right');
-        };
-        TheadTitlesRowComponent.prototype.getVisibleColumns = function (columns) {
-            return (columns || []).filter(function (column) { return !column.hide; });
-        };
-        return TheadTitlesRowComponent;
-    }());
-    TheadTitlesRowComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: '[ng2-st-thead-titles-row]',
-                    template: "\n    <th ng2-st-checkbox-select-all *ngIf=\"isMultiSelectVisible\"\n                                   [grid]=\"grid\"\n                                   [source]=\"source\"\n                                   [isAllSelected]=\"isAllSelected\"\n                                   (click)=\"selectAllRows.emit($event)\">\n    </th>\n    <th ng2-st-actions-title *ngIf=\"showActionColumnLeft\" [grid]=\"grid\"></th>\n    <th *ngFor=\"let column of getVisibleColumns(grid.getColumns())\"\n        class=\"ng2-smart-th {{ column.id }}\"\n        [ngClass]=\"column.class\"\n        [style.width]=\"column.width\">\n      <ng2-st-column-title [source]=\"source\" [column]=\"column\" (sort)=\"sort.emit($event)\"></ng2-st-column-title>\n    </th>\n    <th ng2-st-actions-title *ngIf=\"showActionColumnRight\" [grid]=\"grid\"></th>\n  "
-                },] }
-    ];
-    TheadTitlesRowComponent.propDecorators = {
-        grid: [{ type: core.Input }],
-        isAllSelected: [{ type: core.Input }],
-        source: [{ type: core.Input }],
-        sort: [{ type: core.Output }],
-        selectAllRows: [{ type: core.Output }]
-    };
-
-    var THEAD_COMPONENTS = [
-        ActionsComponent,
-        ActionsTitleComponent,
-        AddButtonComponent,
-        CheckboxSelectAllComponent,
-        ColumnTitleComponent,
-        TitleComponent,
-        TheadFitlersRowComponent,
-        TheadFormRowComponent,
-        TheadTitlesRowComponent,
-        Ng2SmartTableTheadComponent,
-    ];
-    var THeadModule = /** @class */ (function () {
-        function THeadModule() {
-        }
-        return THeadModule;
-    }());
-    THeadModule.decorators = [
-        { type: core.NgModule, args: [{
-                    imports: [
-                        common.CommonModule,
-                        forms.FormsModule,
-                        FilterModule,
-                        CellModule,
-                    ],
-                    declarations: __spread(THEAD_COMPONENTS),
-                    exports: __spread(THEAD_COMPONENTS),
-                },] }
-    ];
 
     /**
      * Extending object that entered in first argument.
@@ -1742,10 +153,6 @@
         });
         return typeof level === 'undefined' ? defaultValue : level;
     }
-    function getPageForRowIndex(index, perPage) {
-        // we need to add 1 to convert 0-based index to 1-based page number.
-        return Math.floor(index / perPage) + 1;
-    }
 
     function prepareValue(value) { return value; }
     var Cell = /** @class */ (function () {
@@ -1785,9 +192,9 @@
                 return this.getColumn().isEditable;
             }
         };
+        Cell.PREPARE = prepareValue;
         return Cell;
     }());
-    Cell.PREPARE = prepareValue;
 
     var Row = /** @class */ (function () {
         function Row(index, data, _dataSet) {
@@ -1845,7 +252,6 @@
             this.type = '';
             this.class = '';
             this.width = '';
-            this.hide = false;
             this.isSortable = false;
             this.isEditable = true;
             this.isAddable = true;
@@ -1882,7 +288,6 @@
             this.title = this.settings['title'];
             this.class = this.settings['class'];
             this.width = this.settings['width'];
-            this.hide = !!this.settings['hide'];
             this.type = this.prepareType();
             this.editor = this.settings['editor'];
             this.filter = this.settings['filter'];
@@ -1919,6 +324,7 @@
             this.data = [];
             this.columns = [];
             this.rows = [];
+            this.willSelect = 'first';
             this.createColumns(columnSettings);
             this.setData(data);
             this.createNewRow();
@@ -1946,8 +352,6 @@
             this.rows.forEach(function (row) {
                 row.isSelected = false;
             });
-            // we need to clear selectedRow field because no one row selected
-            this.selectedRow = undefined;
         };
         DataSet.prototype.selectRow = function (row) {
             var previousIsSelected = row.isSelected;
@@ -1983,29 +387,13 @@
                 return this.selectedRow;
             }
         };
-        DataSet.prototype.selectRowByIndex = function (index) {
-            var rowsLength = this.rows.length;
-            if (rowsLength === 0) {
-                return;
-            }
-            if (!index) {
-                this.selectFirstRow();
-                return this.selectedRow;
-            }
-            if (index > 0 && index < rowsLength) {
-                this.selectRow(this.rows[index]);
-                return this.selectedRow;
-            }
-            // we need to deselect all rows if we got an incorrect index
-            this.deselectAll();
-        };
         DataSet.prototype.willSelectFirstRow = function () {
             this.willSelect = 'first';
         };
         DataSet.prototype.willSelectLastRow = function () {
             this.willSelect = 'last';
         };
-        DataSet.prototype.select = function (selectedRowIndex) {
+        DataSet.prototype.select = function () {
             if (this.getRows().length === 0) {
                 return;
             }
@@ -2019,7 +407,7 @@
                 this.willSelect = '';
             }
             else {
-                this.selectRowByIndex(selectedRowIndex);
+                this.selectFirstRow();
             }
             return this.selectedRow;
         };
@@ -2057,18 +445,9 @@
         function Grid(source, settings) {
             this.createFormShown = false;
             this.onSelectRowSource = new rxjs.Subject();
-            this.onDeselectRowSource = new rxjs.Subject();
             this.setSettings(settings);
             this.setSource(source);
         }
-        Grid.prototype.detach = function () {
-            if (this.sourceOnChangedSubscription) {
-                this.sourceOnChangedSubscription.unsubscribe();
-            }
-            if (this.sourceOnUpdatedSubscription) {
-                this.sourceOnUpdatedSubscription.unsubscribe();
-            }
-        };
         Grid.prototype.showActionColumn = function (position) {
             return this.isCurrentActionsPosition(position) && this.isActionsVisible();
         };
@@ -2097,9 +476,8 @@
         Grid.prototype.setSource = function (source) {
             var _this = this;
             this.source = this.prepareSource(source);
-            this.detach();
-            this.sourceOnChangedSubscription = this.source.onChanged().subscribe(function (changes) { return _this.processDataChange(changes); });
-            this.sourceOnUpdatedSubscription = this.source.onUpdated().subscribe(function (data) {
+            this.source.onChanged().subscribe(function (changes) { return _this.processDataChange(changes); });
+            this.source.onUpdated().subscribe(function (data) {
                 var changedRow = _this.dataSet.findRowByData(data);
                 changedRow.setData(data);
             });
@@ -2121,9 +499,6 @@
         };
         Grid.prototype.onSelectRow = function () {
             return this.onSelectRowSource.asObservable();
-        };
-        Grid.prototype.onDeselectRow = function () {
-            return this.onDeselectRowSource.asObservable();
         };
         Grid.prototype.edit = function (row) {
             row.isInEditing = true;
@@ -2211,9 +586,6 @@
                     if (row) {
                         this.onSelectRowSource.next(row);
                     }
-                    else {
-                        this.onDeselectRowSource.next(null);
-                    }
                 }
             }
         };
@@ -2226,18 +598,10 @@
             }
             return false;
         };
-        /**
-         * @breaking-change 1.8.0
-         * Need to add `| null` in return type
-         *
-         * TODO: move to selectable? Separate directive
-         */
+        // TODO: move to selectable? Separate directive
         Grid.prototype.determineRowToSelect = function (changes) {
             if (['load', 'page', 'filter', 'sort', 'refresh'].indexOf(changes['action']) !== -1) {
-                return this.dataSet.select(this.getRowIndexToSelect());
-            }
-            if (this.shouldSkipSelection()) {
-                return null;
+                return this.dataSet.select();
             }
             if (changes['action'] === 'remove') {
                 if (changes['elements'].length === 0) {
@@ -2270,7 +634,7 @@
                 source.setSort([initialSource], false);
             }
             if (this.getSetting('pager.display') === true) {
-                source.setPaging(this.getPageToSelect(source), this.getSetting('pager.perPage'), false);
+                source.setPaging(1, this.getSetting('pager.perPage'), false);
             }
             source.refresh();
             return source;
@@ -2300,58 +664,416 @@
         Grid.prototype.getLastRow = function () {
             return this.dataSet.getLastRow();
         };
-        Grid.prototype.getSelectionInfo = function () {
-            var switchPageToSelectedRowPage = this.getSetting('switchPageToSelectedRowPage');
-            var selectedRowIndex = Number(this.getSetting('selectedRowIndex', 0)) || 0;
-            var _a = this.getSetting('pager'), perPage = _a.perPage, page = _a.page;
-            return { perPage: perPage, page: page, selectedRowIndex: selectedRowIndex, switchPageToSelectedRowPage: switchPageToSelectedRowPage };
-        };
-        Grid.prototype.getRowIndexToSelect = function () {
-            var _a = this.getSelectionInfo(), switchPageToSelectedRowPage = _a.switchPageToSelectedRowPage, selectedRowIndex = _a.selectedRowIndex, perPage = _a.perPage;
-            var dataAmount = this.source.count();
-            /**
-             * source - contains all table data
-             * dataSet - contains data for current page
-             * selectedRowIndex - contains index for data in all data
-             *
-             * because of that, we need to count index for a specific row in page
-             * if
-             * `switchPageToSelectedRowPage` - we need to change page automatically
-             * `selectedRowIndex < dataAmount && selectedRowIndex >= 0` - index points to existing data
-             * (if index points to non-existing data and we calculate index for current page - we will get wrong selected row.
-             *  if we return index witch not points to existing data - no line will be highlighted)
-             */
-            return (switchPageToSelectedRowPage &&
-                selectedRowIndex < dataAmount &&
-                selectedRowIndex >= 0) ?
-                selectedRowIndex % perPage :
-                selectedRowIndex;
-        };
-        Grid.prototype.getPageToSelect = function (source) {
-            var _a = this.getSelectionInfo(), switchPageToSelectedRowPage = _a.switchPageToSelectedRowPage, selectedRowIndex = _a.selectedRowIndex, perPage = _a.perPage, page = _a.page;
-            var pageToSelect = Math.max(1, page);
-            if (switchPageToSelectedRowPage && selectedRowIndex >= 0) {
-                pageToSelect = getPageForRowIndex(selectedRowIndex, perPage);
-            }
-            var maxPageAmount = Math.ceil(source.count() / perPage);
-            return maxPageAmount ? Math.min(pageToSelect, maxPageAmount) : pageToSelect;
-        };
-        Grid.prototype.shouldSkipSelection = function () {
-            /**
-             * For backward compatibility when using `selectedRowIndex` with non-number values - ignored.
-             *
-             * Therefore, in order to select a row after some changes,
-             * the `selectedRowIndex` value must be invalid or >= 0 (< 0 means that no row is selected).
-             *
-             * `Number(value)` returns `NaN` on all invalid cases, and comparisons with `NaN` always return `false`.
-             *
-             * !!! We should skip a row only in cases when `selectedRowIndex` < 0
-             * because when < 0 all lines must be deselected
-             */
-            var selectedRowIndex = Number(this.getSetting('selectedRowIndex'));
-            return selectedRowIndex < 0;
-        };
         return Grid;
+    }());
+
+    var CellComponent = /** @class */ (function () {
+        function CellComponent() {
+            this.inputClass = '';
+            this.mode = 'inline';
+            this.isInEditing = false;
+            this.edited = new core.EventEmitter();
+        }
+        CellComponent.prototype.onEdited = function (event) {
+            if (this.isNew) {
+                this.grid.create(this.grid.getNewRow(), this.createConfirm);
+            }
+            else {
+                this.grid.save(this.row, this.editConfirm);
+            }
+        };
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Grid)
+        ], CellComponent.prototype, "grid", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Row)
+        ], CellComponent.prototype, "row", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", core.EventEmitter)
+        ], CellComponent.prototype, "editConfirm", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", core.EventEmitter)
+        ], CellComponent.prototype, "createConfirm", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Boolean)
+        ], CellComponent.prototype, "isNew", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Cell)
+        ], CellComponent.prototype, "cell", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", String)
+        ], CellComponent.prototype, "inputClass", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", String)
+        ], CellComponent.prototype, "mode", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Boolean)
+        ], CellComponent.prototype, "isInEditing", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], CellComponent.prototype, "edited", void 0);
+        CellComponent = __decorate([
+            core.Component({
+                selector: 'ng2-smart-table-cell',
+                template: "\n    <table-cell-view-mode *ngIf=\"!isInEditing\" [cell]=\"cell\"></table-cell-view-mode>\n    <table-cell-edit-mode *ngIf=\"isInEditing\" [cell]=\"cell\"\n                          [inputClass]=\"inputClass\"\n                          (edited)=\"onEdited($event)\">\n    </table-cell-edit-mode>\n  "
+            })
+        ], CellComponent);
+        return CellComponent;
+    }());
+
+    var EditCellDefault = /** @class */ (function () {
+        function EditCellDefault() {
+            this.inputClass = '';
+            this.edited = new core.EventEmitter();
+        }
+        EditCellDefault.prototype.onEdited = function (event) {
+            this.edited.next(event);
+            return false;
+        };
+        EditCellDefault.prototype.onStopEditing = function () {
+            this.cell.getRow().isInEditing = false;
+            return false;
+        };
+        EditCellDefault.prototype.onClick = function (event) {
+            event.stopPropagation();
+        };
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Cell)
+        ], EditCellDefault.prototype, "cell", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", String)
+        ], EditCellDefault.prototype, "inputClass", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], EditCellDefault.prototype, "edited", void 0);
+        return EditCellDefault;
+    }());
+
+    var CustomEditComponent = /** @class */ (function (_super) {
+        __extends(CustomEditComponent, _super);
+        function CustomEditComponent(resolver) {
+            var _this = _super.call(this) || this;
+            _this.resolver = resolver;
+            return _this;
+        }
+        CustomEditComponent.prototype.ngOnChanges = function (changes) {
+            var _this = this;
+            if (this.cell && !this.customComponent) {
+                var componentFactory = this.resolver.resolveComponentFactory(this.cell.getColumn().editor.component);
+                this.customComponent = this.dynamicTarget.createComponent(componentFactory);
+                // set @Inputs and @Outputs of custom component
+                this.customComponent.instance.cell = this.cell;
+                this.customComponent.instance.inputClass = this.inputClass;
+                this.customComponent.instance.onStopEditing.subscribe(function () { return _this.onStopEditing(); });
+                this.customComponent.instance.onEdited.subscribe(function (event) { return _this.onEdited(event); });
+                this.customComponent.instance.onClick.subscribe(function (event) { return _this.onClick(event); });
+            }
+        };
+        CustomEditComponent.prototype.ngOnDestroy = function () {
+            if (this.customComponent) {
+                this.customComponent.destroy();
+            }
+        };
+        __decorate([
+            core.ViewChild('dynamicTarget', { read: core.ViewContainerRef, static: true }),
+            __metadata("design:type", Object)
+        ], CustomEditComponent.prototype, "dynamicTarget", void 0);
+        CustomEditComponent = __decorate([
+            core.Component({
+                selector: 'table-cell-custom-editor',
+                template: "\n    <ng-template #dynamicTarget></ng-template>\n  "
+            }),
+            __metadata("design:paramtypes", [core.ComponentFactoryResolver])
+        ], CustomEditComponent);
+        return CustomEditComponent;
+    }(EditCellDefault));
+
+    var DefaultEditComponent = /** @class */ (function (_super) {
+        __extends(DefaultEditComponent, _super);
+        function DefaultEditComponent() {
+            return _super.call(this) || this;
+        }
+        DefaultEditComponent.prototype.getEditorType = function () {
+            return this.cell.getColumn().editor && this.cell.getColumn().editor.type;
+        };
+        DefaultEditComponent = __decorate([
+            core.Component({
+                selector: 'table-cell-default-editor',
+                template: "<div [ngSwitch]=\"getEditorType()\">\n    <select-editor *ngSwitchCase=\"'list'\"\n                   [cell]=\"cell\"\n                   [inputClass]=\"inputClass\"\n                   (onClick)=\"onClick($event)\"\n                   (onEdited)=\"onEdited($event)\"\n                   (onStopEditing)=\"onStopEditing()\">\n    </select-editor>\n\n    <textarea-editor *ngSwitchCase=\"'textarea'\"\n                     [cell]=\"cell\"\n                     [inputClass]=\"inputClass\"\n                     (onClick)=\"onClick($event)\"\n                     (onEdited)=\"onEdited($event)\"\n                     (onStopEditing)=\"onStopEditing()\">\n    </textarea-editor>\n\n    <checkbox-editor *ngSwitchCase=\"'checkbox'\"\n                     [cell]=\"cell\"\n                     [inputClass]=\"inputClass\"\n                     (onClick)=\"onClick($event)\">\n    </checkbox-editor>\n\n    <completer-editor *ngSwitchCase=\"'completer'\"\n                      [cell]=\"cell\">\n    </completer-editor>\n\n    <input-editor *ngSwitchDefault\n                  [cell]=\"cell\"\n                  [inputClass]=\"inputClass\"\n                  (onClick)=\"onClick($event)\"\n                  (onEdited)=\"onEdited($event)\"\n                  (onStopEditing)=\"onStopEditing()\">\n    </input-editor>\n</div>"
+            }),
+            __metadata("design:paramtypes", [])
+        ], DefaultEditComponent);
+        return DefaultEditComponent;
+    }(EditCellDefault));
+
+    var EditCellComponent = /** @class */ (function () {
+        function EditCellComponent() {
+            this.inputClass = '';
+            this.edited = new core.EventEmitter();
+        }
+        EditCellComponent.prototype.onEdited = function (event) {
+            this.edited.next(event);
+            return false;
+        };
+        EditCellComponent.prototype.getEditorType = function () {
+            return this.cell.getColumn().editor && this.cell.getColumn().editor.type;
+        };
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Cell)
+        ], EditCellComponent.prototype, "cell", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", String)
+        ], EditCellComponent.prototype, "inputClass", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], EditCellComponent.prototype, "edited", void 0);
+        EditCellComponent = __decorate([
+            core.Component({
+                selector: 'table-cell-edit-mode',
+                template: "\n      <div [ngSwitch]=\"getEditorType()\">\n        <table-cell-custom-editor *ngSwitchCase=\"'custom'\"\n                                  [cell]=\"cell\"\n                                  [inputClass]=\"inputClass\"\n                                  (edited)=\"onEdited($event)\">\n        </table-cell-custom-editor>\n        <table-cell-default-editor *ngSwitchDefault\n                                  [cell]=\"cell\"\n                                  [inputClass]=\"inputClass\"\n                                  (edited)=\"onEdited($event)\">\n        </table-cell-default-editor>\n      </div>\n    "
+            })
+        ], EditCellComponent);
+        return EditCellComponent;
+    }());
+
+    var DefaultEditor = /** @class */ (function () {
+        function DefaultEditor() {
+            this.onStopEditing = new core.EventEmitter();
+            this.onEdited = new core.EventEmitter();
+            this.onClick = new core.EventEmitter();
+        }
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Cell)
+        ], DefaultEditor.prototype, "cell", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", String)
+        ], DefaultEditor.prototype, "inputClass", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], DefaultEditor.prototype, "onStopEditing", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], DefaultEditor.prototype, "onEdited", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], DefaultEditor.prototype, "onClick", void 0);
+        return DefaultEditor;
+    }());
+
+    var CheckboxEditorComponent = /** @class */ (function (_super) {
+        __extends(CheckboxEditorComponent, _super);
+        function CheckboxEditorComponent() {
+            return _super.call(this) || this;
+        }
+        CheckboxEditorComponent.prototype.onChange = function (event) {
+            var trueVal = (this.cell.getColumn().getConfig() && this.cell.getColumn().getConfig().true) || true;
+            var falseVal = (this.cell.getColumn().getConfig() && this.cell.getColumn().getConfig().false) || false;
+            this.cell.newValue = event.target.checked ? trueVal : falseVal;
+        };
+        CheckboxEditorComponent = __decorate([
+            core.Component({
+                selector: 'checkbox-editor',
+                template: "\n    <input [ngClass]=\"inputClass\"\n           type=\"checkbox\"\n           class=\"form-control\"\n           [name]=\"cell.getId()\"\n           [disabled]=\"!cell.isEditable()\"\n           [checked]=\"cell.getValue() == (cell.getColumn().getConfig()?.true || true)\"\n           (click)=\"onClick.emit($event)\"\n           (change)=\"onChange($event)\">\n    ",
+                styles: [":host input,:host textarea{width:100%;line-height:normal;padding:.375em .75em}"]
+            }),
+            __metadata("design:paramtypes", [])
+        ], CheckboxEditorComponent);
+        return CheckboxEditorComponent;
+    }(DefaultEditor));
+
+    var CompleterEditorComponent = /** @class */ (function (_super) {
+        __extends(CompleterEditorComponent, _super);
+        function CompleterEditorComponent(completerService) {
+            var _this = _super.call(this) || this;
+            _this.completerService = completerService;
+            _this.completerStr = '';
+            return _this;
+        }
+        CompleterEditorComponent.prototype.ngOnInit = function () {
+            if (this.cell.getColumn().editor && this.cell.getColumn().editor.type === 'completer') {
+                var config = this.cell.getColumn().getConfig().completer;
+                config.dataService = this.completerService.local(config.data, config.searchFields, config.titleField);
+                config.dataService.descriptionField(config.descriptionField);
+            }
+        };
+        CompleterEditorComponent.prototype.onEditedCompleter = function (event) {
+            this.cell.newValue = event.title;
+            return false;
+        };
+        CompleterEditorComponent = __decorate([
+            core.Component({
+                selector: 'completer-editor',
+                template: "\n    <ng2-completer [(ngModel)]=\"completerStr\"\n                   [dataService]=\"cell.getColumn().getConfig().completer.dataService\"\n                   [minSearchLength]=\"cell.getColumn().getConfig().completer.minSearchLength || 0\"\n                   [pause]=\"cell.getColumn().getConfig().completer.pause || 0\"\n                   [placeholder]=\"cell.getColumn().getConfig().completer.placeholder || 'Start typing...'\"\n                   (selected)=\"onEditedCompleter($event)\">\n    </ng2-completer>\n    "
+            }),
+            __metadata("design:paramtypes", [ng2Completer.CompleterService])
+        ], CompleterEditorComponent);
+        return CompleterEditorComponent;
+    }(DefaultEditor));
+
+    var InputEditorComponent = /** @class */ (function (_super) {
+        __extends(InputEditorComponent, _super);
+        function InputEditorComponent() {
+            return _super.call(this) || this;
+        }
+        InputEditorComponent = __decorate([
+            core.Component({
+                selector: 'input-editor',
+                template: "\n    <input [ngClass]=\"inputClass\"\n           class=\"form-control\"\n           [(ngModel)]=\"cell.newValue\"\n           [name]=\"cell.getId()\"\n           [placeholder]=\"cell.getTitle()\"\n           [disabled]=\"!cell.isEditable()\"\n           (click)=\"onClick.emit($event)\"\n           (keydown.enter)=\"onEdited.emit($event)\"\n           (keydown.esc)=\"onStopEditing.emit()\">\n    ",
+                styles: [":host input,:host textarea{width:100%;line-height:normal;padding:.375em .75em}"]
+            }),
+            __metadata("design:paramtypes", [])
+        ], InputEditorComponent);
+        return InputEditorComponent;
+    }(DefaultEditor));
+
+    var SelectEditorComponent = /** @class */ (function (_super) {
+        __extends(SelectEditorComponent, _super);
+        function SelectEditorComponent() {
+            return _super.call(this) || this;
+        }
+        SelectEditorComponent = __decorate([
+            core.Component({
+                selector: 'select-editor',
+                template: "\n    <select [ngClass]=\"inputClass\"\n            class=\"form-control\"\n            [(ngModel)]=\"cell.newValue\"\n            [name]=\"cell.getId()\"\n            [disabled]=\"!cell.isEditable()\"\n            (click)=\"onClick.emit($event)\"\n            (keydown.enter)=\"onEdited.emit($event)\"\n            (keydown.esc)=\"onStopEditing.emit()\">\n\n        <option *ngFor=\"let option of cell.getColumn().getConfig()?.list\" [value]=\"option.value\"\n                [selected]=\"option.value === cell.getValue()\">{{ option.title }}\n        </option>\n    </select>\n    "
+            }),
+            __metadata("design:paramtypes", [])
+        ], SelectEditorComponent);
+        return SelectEditorComponent;
+    }(DefaultEditor));
+
+    var TextareaEditorComponent = /** @class */ (function (_super) {
+        __extends(TextareaEditorComponent, _super);
+        function TextareaEditorComponent() {
+            return _super.call(this) || this;
+        }
+        TextareaEditorComponent = __decorate([
+            core.Component({
+                selector: 'textarea-editor',
+                template: "\n    <textarea [ngClass]=\"inputClass\"\n              class=\"form-control\"\n              [(ngModel)]=\"cell.newValue\"\n              [name]=\"cell.getId()\"\n              [disabled]=\"!cell.isEditable()\"\n              [placeholder]=\"cell.getTitle()\"\n              (click)=\"onClick.emit($event)\"\n              (keydown.enter)=\"onEdited.emit($event)\"\n              (keydown.esc)=\"onStopEditing.emit()\">\n    </textarea>\n    ",
+                styles: [":host input,:host textarea{width:100%;line-height:normal;padding:.375em .75em}"]
+            }),
+            __metadata("design:paramtypes", [])
+        ], TextareaEditorComponent);
+        return TextareaEditorComponent;
+    }(DefaultEditor));
+
+    var CustomViewComponent = /** @class */ (function () {
+        function CustomViewComponent(resolver) {
+            this.resolver = resolver;
+        }
+        CustomViewComponent.prototype.ngOnInit = function () {
+            if (this.cell && !this.customComponent) {
+                this.createCustomComponent();
+                this.callOnComponentInit();
+                this.patchInstance();
+            }
+        };
+        CustomViewComponent.prototype.ngOnDestroy = function () {
+            if (this.customComponent) {
+                this.customComponent.destroy();
+            }
+        };
+        CustomViewComponent.prototype.createCustomComponent = function () {
+            var componentFactory = this.resolver.resolveComponentFactory(this.cell.getColumn().renderComponent);
+            this.customComponent = this.dynamicTarget.createComponent(componentFactory);
+        };
+        CustomViewComponent.prototype.callOnComponentInit = function () {
+            var onComponentInitFunction = this.cell.getColumn().getOnComponentInitFunction();
+            onComponentInitFunction && onComponentInitFunction(this.customComponent.instance);
+        };
+        CustomViewComponent.prototype.patchInstance = function () {
+            Object.assign(this.customComponent.instance, this.getPatch());
+        };
+        CustomViewComponent.prototype.getPatch = function () {
+            return {
+                value: this.cell.getValue(),
+                rowData: this.cell.getRow().getData()
+            };
+        };
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Cell)
+        ], CustomViewComponent.prototype, "cell", void 0);
+        __decorate([
+            core.ViewChild('dynamicTarget', { read: core.ViewContainerRef, static: true }),
+            __metadata("design:type", Object)
+        ], CustomViewComponent.prototype, "dynamicTarget", void 0);
+        CustomViewComponent = __decorate([
+            core.Component({
+                selector: 'custom-view-component',
+                template: "\n    <ng-template #dynamicTarget></ng-template>\n  "
+            }),
+            __metadata("design:paramtypes", [core.ComponentFactoryResolver])
+        ], CustomViewComponent);
+        return CustomViewComponent;
+    }());
+
+    var ViewCellComponent = /** @class */ (function () {
+        function ViewCellComponent() {
+        }
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Cell)
+        ], ViewCellComponent.prototype, "cell", void 0);
+        ViewCellComponent = __decorate([
+            core.Component({
+                selector: 'table-cell-view-mode',
+                changeDetection: core.ChangeDetectionStrategy.OnPush,
+                template: "\n    <div [ngSwitch]=\"cell.getColumn().type\">\n        <custom-view-component *ngSwitchCase=\"'custom'\" [cell]=\"cell\"></custom-view-component>\n        <div *ngSwitchCase=\"'html'\" [innerHTML]=\"cell.getValue()\"></div>\n        <div *ngSwitchDefault>{{ cell.getValue() }}</div>\n    </div>\n    "
+            })
+        ], ViewCellComponent);
+        return ViewCellComponent;
+    }());
+
+    var CELL_COMPONENTS = [
+        CellComponent,
+        CustomEditComponent,
+        DefaultEditComponent,
+        EditCellComponent,
+        CheckboxEditorComponent,
+        CompleterEditorComponent,
+        InputEditorComponent,
+        SelectEditorComponent,
+        TextareaEditorComponent,
+        CustomViewComponent,
+        ViewCellComponent,
+    ];
+    var CellModule = /** @class */ (function () {
+        function CellModule() {
+        }
+        CellModule = __decorate([
+            core.NgModule({
+                imports: [
+                    common.CommonModule,
+                    forms.FormsModule,
+                    ng2Completer.Ng2CompleterModule,
+                ],
+                declarations: __spread(CELL_COMPONENTS),
+                exports: __spread(CELL_COMPONENTS),
+            })
+        ], CellModule);
+        return CellModule;
     }());
 
     var DataSource = /** @class */ (function () {
@@ -2454,6 +1176,1162 @@
             }); });
         };
         return DataSource;
+    }());
+
+    var FilterDefault = /** @class */ (function () {
+        function FilterDefault() {
+            this.inputClass = '';
+            this.filter = new core.EventEmitter();
+            this.query = '';
+        }
+        FilterDefault.prototype.onFilter = function (query) {
+            this.source.addFilter({
+                field: this.column.id,
+                search: query,
+                filter: this.column.getFilterFunction(),
+            });
+        };
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Column)
+        ], FilterDefault.prototype, "column", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", DataSource)
+        ], FilterDefault.prototype, "source", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", String)
+        ], FilterDefault.prototype, "inputClass", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], FilterDefault.prototype, "filter", void 0);
+        return FilterDefault;
+    }());
+
+    var FilterComponent = /** @class */ (function (_super) {
+        __extends(FilterComponent, _super);
+        function FilterComponent() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.query = '';
+            return _this;
+        }
+        FilterComponent.prototype.ngOnChanges = function (changes) {
+            var _this = this;
+            if (changes.source) {
+                if (!changes.source.firstChange) {
+                    this.dataChangedSub.unsubscribe();
+                }
+                this.dataChangedSub = this.source.onChanged().subscribe(function (dataChanges) {
+                    var filterConf = _this.source.getFilter();
+                    if (filterConf && filterConf.filters && filterConf.filters.length === 0) {
+                        _this.query = '';
+                        // add a check for existing filters an set the query if one exists for this column
+                        // this covers instances where the filter is set by user code while maintaining existing functionality
+                    }
+                    else if (filterConf && filterConf.filters && filterConf.filters.length > 0) {
+                        filterConf.filters.forEach(function (k, v) {
+                            if (k.field == _this.column.id) {
+                                _this.query = k.search;
+                            }
+                        });
+                    }
+                });
+            }
+        };
+        FilterComponent = __decorate([
+            core.Component({
+                selector: 'ng2-smart-table-filter',
+                template: "\n      <div class=\"ng2-smart-filter\" *ngIf=\"column.isFilterable\" [ngSwitch]=\"column.getFilterType()\">\n        <custom-table-filter *ngSwitchCase=\"'custom'\"\n                             [query]=\"query\"\n                             [column]=\"column\"\n                             [source]=\"source\"\n                             [inputClass]=\"inputClass\"\n                             (filter)=\"onFilter($event)\">\n        </custom-table-filter>\n        <default-table-filter *ngSwitchDefault\n                              [query]=\"query\"\n                              [column]=\"column\"\n                              [source]=\"source\"\n                              [inputClass]=\"inputClass\"\n                              (filter)=\"onFilter($event)\">\n        </default-table-filter>\n      </div>\n    ",
+                styles: [":host .ng2-smart-filter ::ng-deep input,:host .ng2-smart-filter ::ng-deep select{width:100%;line-height:normal;padding:.375em .75em;font-weight:400}:host .ng2-smart-filter ::ng-deep input[type=search]{box-sizing:inherit}:host .ng2-smart-filter ::ng-deep .completer-dropdown-holder{font-weight:400}:host .ng2-smart-filter ::ng-deep a{font-weight:400}"]
+            })
+        ], FilterComponent);
+        return FilterComponent;
+    }(FilterDefault));
+
+    var DefaultFilterComponent = /** @class */ (function (_super) {
+        __extends(DefaultFilterComponent, _super);
+        function DefaultFilterComponent() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        __decorate([
+            core.Input(),
+            __metadata("design:type", String)
+        ], DefaultFilterComponent.prototype, "query", void 0);
+        DefaultFilterComponent = __decorate([
+            core.Component({
+                selector: 'default-table-filter',
+                template: "\n    <ng-container [ngSwitch]=\"column.getFilterType()\">\n      <select-filter *ngSwitchCase=\"'list'\"\n                     [query]=\"query\"\n                     [ngClass]=\"inputClass\"\n                     [column]=\"column\"\n                     (filter)=\"onFilter($event)\">\n      </select-filter>\n      <checkbox-filter *ngSwitchCase=\"'checkbox'\"\n                       [query]=\"query\"\n                       [ngClass]=\"inputClass\"\n                       [column]=\"column\"\n                       (filter)=\"onFilter($event)\">\n      </checkbox-filter>\n      <completer-filter *ngSwitchCase=\"'completer'\"\n                        [query]=\"query\"\n                        [ngClass]=\"inputClass\"\n                        [column]=\"column\"\n                        (filter)=\"onFilter($event)\">\n      </completer-filter>\n      <input-filter *ngSwitchDefault\n                    [query]=\"query\"\n                    [ngClass]=\"inputClass\"\n                    [column]=\"column\"\n                    (filter)=\"onFilter($event)\">\n      </input-filter>\n    </ng-container>\n  "
+            })
+        ], DefaultFilterComponent);
+        return DefaultFilterComponent;
+    }(FilterDefault));
+
+    var CustomFilterComponent = /** @class */ (function (_super) {
+        __extends(CustomFilterComponent, _super);
+        function CustomFilterComponent(resolver) {
+            var _this = _super.call(this) || this;
+            _this.resolver = resolver;
+            return _this;
+        }
+        CustomFilterComponent.prototype.ngOnChanges = function (changes) {
+            var _this = this;
+            if (this.column && !this.customComponent) {
+                var componentFactory = this.resolver.resolveComponentFactory(this.column.filter.component);
+                this.customComponent = this.dynamicTarget.createComponent(componentFactory);
+                // set @Inputs and @Outputs of custom component
+                this.customComponent.instance.query = this.query;
+                this.customComponent.instance.column = this.column;
+                this.customComponent.instance.source = this.source;
+                this.customComponent.instance.inputClass = this.inputClass;
+                this.customComponent.instance.filter.subscribe(function (event) { return _this.onFilter(event); });
+            }
+            if (this.customComponent) {
+                this.customComponent.instance.ngOnChanges(changes);
+            }
+        };
+        CustomFilterComponent.prototype.ngOnDestroy = function () {
+            if (this.customComponent) {
+                this.customComponent.destroy();
+            }
+        };
+        __decorate([
+            core.Input(),
+            __metadata("design:type", String)
+        ], CustomFilterComponent.prototype, "query", void 0);
+        __decorate([
+            core.ViewChild('dynamicTarget', { read: core.ViewContainerRef, static: true }),
+            __metadata("design:type", Object)
+        ], CustomFilterComponent.prototype, "dynamicTarget", void 0);
+        CustomFilterComponent = __decorate([
+            core.Component({
+                selector: 'custom-table-filter',
+                template: "<ng-template #dynamicTarget></ng-template>"
+            }),
+            __metadata("design:paramtypes", [core.ComponentFactoryResolver])
+        ], CustomFilterComponent);
+        return CustomFilterComponent;
+    }(FilterDefault));
+
+    var DefaultFilter = /** @class */ (function () {
+        function DefaultFilter() {
+            this.delay = 300;
+            this.filter = new core.EventEmitter();
+        }
+        DefaultFilter.prototype.ngOnDestroy = function () {
+            if (this.changesSubscription) {
+                this.changesSubscription.unsubscribe();
+            }
+        };
+        DefaultFilter.prototype.setFilter = function () {
+            this.filter.emit(this.query);
+        };
+        __decorate([
+            core.Input(),
+            __metadata("design:type", String)
+        ], DefaultFilter.prototype, "query", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", String)
+        ], DefaultFilter.prototype, "inputClass", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Column)
+        ], DefaultFilter.prototype, "column", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], DefaultFilter.prototype, "filter", void 0);
+        return DefaultFilter;
+    }());
+
+    var CheckboxFilterComponent = /** @class */ (function (_super) {
+        __extends(CheckboxFilterComponent, _super);
+        function CheckboxFilterComponent() {
+            var _this = _super.call(this) || this;
+            _this.filterActive = false;
+            _this.inputControl = new forms.FormControl();
+            return _this;
+        }
+        CheckboxFilterComponent.prototype.ngOnInit = function () {
+            var _this = this;
+            this.changesSubscription = this.inputControl.valueChanges
+                .pipe(operators.debounceTime(this.delay))
+                .subscribe(function (checked) {
+                _this.filterActive = true;
+                var trueVal = (_this.column.getFilterConfig() && _this.column.getFilterConfig().true) || true;
+                var falseVal = (_this.column.getFilterConfig() && _this.column.getFilterConfig().false) || false;
+                _this.query = checked ? trueVal : falseVal;
+                _this.setFilter();
+            });
+        };
+        CheckboxFilterComponent.prototype.resetFilter = function (event) {
+            event.preventDefault();
+            this.query = '';
+            this.inputControl.setValue(false, { emitEvent: false });
+            this.filterActive = false;
+            this.setFilter();
+        };
+        CheckboxFilterComponent = __decorate([
+            core.Component({
+                selector: 'checkbox-filter',
+                template: "\n    <input type=\"checkbox\" [formControl]=\"inputControl\" [ngClass]=\"inputClass\" class=\"form-control\">\n    <a href=\"#\" *ngIf=\"filterActive\"\n                (click)=\"resetFilter($event)\">{{column.getFilterConfig()?.resetText || 'reset'}}</a>\n  "
+            }),
+            __metadata("design:paramtypes", [])
+        ], CheckboxFilterComponent);
+        return CheckboxFilterComponent;
+    }(DefaultFilter));
+
+    var CompleterFilterComponent = /** @class */ (function (_super) {
+        __extends(CompleterFilterComponent, _super);
+        function CompleterFilterComponent(completerService) {
+            var _this = _super.call(this) || this;
+            _this.completerService = completerService;
+            _this.completerContent = new rxjs.Subject();
+            return _this;
+        }
+        CompleterFilterComponent.prototype.ngOnInit = function () {
+            var _this = this;
+            var config = this.column.getFilterConfig().completer;
+            config.dataService = this.completerService.local(config.data, config.searchFields, config.titleField);
+            config.dataService.descriptionField(config.descriptionField);
+            this.changesSubscription = this.completerContent
+                .pipe(operators.map(function (ev) { return (ev && ev.title) || ev || ''; }), operators.distinctUntilChanged(), operators.debounceTime(this.delay))
+                .subscribe(function (search) {
+                _this.query = search;
+                _this.setFilter();
+            });
+        };
+        CompleterFilterComponent.prototype.inputTextChanged = function (event) {
+            // workaround to trigger the search event when the home/end buttons are clicked
+            // when this happens the [(ngModel)]="query" is set to "" but the (selected) method is not called
+            // so here it gets called manually
+            if (event === '') {
+                this.completerContent.next(event);
+            }
+        };
+        CompleterFilterComponent = __decorate([
+            core.Component({
+                selector: 'completer-filter',
+                template: "\n    <ng2-completer [(ngModel)]=\"query\"\n                   (ngModelChange)=\"inputTextChanged($event)\"\n                   [dataService]=\"column.getFilterConfig().completer.dataService\"\n                   [minSearchLength]=\"column.getFilterConfig().completer.minSearchLength || 0\"\n                   [pause]=\"column.getFilterConfig().completer.pause || 0\"\n                   [placeholder]=\"column.getFilterConfig().completer.placeholder || 'Start typing...'\"\n                   (selected)=\"completerContent.next($event)\">\n    </ng2-completer>\n  "
+            }),
+            __metadata("design:paramtypes", [ng2Completer.CompleterService])
+        ], CompleterFilterComponent);
+        return CompleterFilterComponent;
+    }(DefaultFilter));
+
+    var InputFilterComponent = /** @class */ (function (_super) {
+        __extends(InputFilterComponent, _super);
+        function InputFilterComponent() {
+            var _this = _super.call(this) || this;
+            _this.inputControl = new forms.FormControl();
+            return _this;
+        }
+        InputFilterComponent.prototype.ngOnInit = function () {
+            var _this = this;
+            if (this.query) {
+                this.inputControl.setValue(this.query);
+            }
+            this.inputControl.valueChanges
+                .pipe(operators.distinctUntilChanged(), operators.debounceTime(this.delay))
+                .subscribe(function (value) {
+                _this.query = _this.inputControl.value;
+                _this.setFilter();
+            });
+        };
+        InputFilterComponent.prototype.ngOnChanges = function (changes) {
+            if (changes.query) {
+                this.inputControl.setValue(this.query);
+            }
+        };
+        InputFilterComponent = __decorate([
+            core.Component({
+                selector: 'input-filter',
+                template: "\n    <input\n      [ngClass]=\"inputClass\"\n      [formControl]=\"inputControl\"\n      class=\"form-control\"\n      type=\"text\"\n      placeholder=\"{{ column.title }}\"/>\n  "
+            }),
+            __metadata("design:paramtypes", [])
+        ], InputFilterComponent);
+        return InputFilterComponent;
+    }(DefaultFilter));
+
+    var SelectFilterComponent = /** @class */ (function (_super) {
+        __extends(SelectFilterComponent, _super);
+        function SelectFilterComponent() {
+            return _super.call(this) || this;
+        }
+        SelectFilterComponent.prototype.ngOnInit = function () {
+            var _this = this;
+            this.inputControl.valueChanges
+                .pipe(operators.skip(1), operators.distinctUntilChanged(), operators.debounceTime(this.delay))
+                .subscribe(function (value) { return _this.setFilter(); });
+        };
+        __decorate([
+            core.ViewChild('inputControl', { read: forms.NgControl, static: true }),
+            __metadata("design:type", forms.NgControl)
+        ], SelectFilterComponent.prototype, "inputControl", void 0);
+        SelectFilterComponent = __decorate([
+            core.Component({
+                selector: 'select-filter',
+                template: "\n    <select [ngClass]=\"inputClass\"\n            class=\"form-control\"\n            #inputControl\n            [(ngModel)]=\"query\">\n\n        <option value=\"\">{{ column.getFilterConfig().selectText }}</option>\n        <option *ngFor=\"let option of column.getFilterConfig().list\" [value]=\"option.value\">\n          {{ option.title }}\n        </option>\n    </select>\n  "
+            }),
+            __metadata("design:paramtypes", [])
+        ], SelectFilterComponent);
+        return SelectFilterComponent;
+    }(DefaultFilter));
+
+    var FILTER_COMPONENTS = [
+        FilterComponent,
+        DefaultFilterComponent,
+        CustomFilterComponent,
+        CheckboxFilterComponent,
+        CompleterFilterComponent,
+        InputFilterComponent,
+        SelectFilterComponent,
+    ];
+    var FilterModule = /** @class */ (function () {
+        function FilterModule() {
+        }
+        FilterModule = __decorate([
+            core.NgModule({
+                imports: [
+                    common.CommonModule,
+                    forms.FormsModule,
+                    forms.ReactiveFormsModule,
+                    ng2Completer.Ng2CompleterModule,
+                ],
+                declarations: __spread(FILTER_COMPONENTS),
+                exports: __spread(FILTER_COMPONENTS),
+            })
+        ], FilterModule);
+        return FilterModule;
+    }());
+
+    var PagerComponent = /** @class */ (function () {
+        function PagerComponent() {
+            this.perPageSelect = [];
+            this.changePage = new core.EventEmitter();
+            this.count = 0;
+        }
+        PagerComponent.prototype.ngOnChanges = function (changes) {
+            var _this = this;
+            if (changes.source) {
+                if (!changes.source.firstChange) {
+                    this.dataChangedSub.unsubscribe();
+                }
+                this.dataChangedSub = this.source.onChanged().subscribe(function (dataChanges) {
+                    _this.page = _this.source.getPaging().page;
+                    _this.perPage = _this.source.getPaging().perPage;
+                    _this.currentPerPage = _this.perPage;
+                    _this.count = _this.source.count();
+                    if (_this.isPageOutOfBounce()) {
+                        _this.source.setPage(--_this.page);
+                    }
+                    _this.processPageChange(dataChanges);
+                    _this.initPages();
+                });
+            }
+        };
+        /**
+         * We change the page here depending on the action performed against data source
+         * if a new element was added to the end of the table - then change the page to the last
+         * if a new element was added to the beginning of the table - then to the first page
+         * @param changes
+         */
+        PagerComponent.prototype.processPageChange = function (changes) {
+            if (changes['action'] === 'prepend') {
+                this.source.setPage(1);
+            }
+            if (changes['action'] === 'append') {
+                this.source.setPage(this.getLast());
+            }
+        };
+        PagerComponent.prototype.shouldShow = function () {
+            return this.source.count() > this.perPage;
+        };
+        PagerComponent.prototype.paginate = function (page) {
+            this.source.setPage(page);
+            this.page = page;
+            this.changePage.emit({ page: page });
+            return false;
+        };
+        PagerComponent.prototype.next = function () {
+            return this.paginate(this.getPage() + 1);
+        };
+        PagerComponent.prototype.prev = function () {
+            return this.paginate(this.getPage() - 1);
+        };
+        PagerComponent.prototype.getPage = function () {
+            return this.page;
+        };
+        PagerComponent.prototype.getPages = function () {
+            return this.pages;
+        };
+        PagerComponent.prototype.getLast = function () {
+            return Math.ceil(this.count / this.perPage);
+        };
+        PagerComponent.prototype.isPageOutOfBounce = function () {
+            return (this.page * this.perPage) >= (this.count + this.perPage) && this.page > 1;
+        };
+        PagerComponent.prototype.initPages = function () {
+            var pagesCount = this.getLast();
+            var showPagesCount = 10;
+            showPagesCount = pagesCount < showPagesCount ? pagesCount : showPagesCount;
+            this.pages = [];
+            if (this.shouldShow()) {
+                var middleOne = Math.ceil(showPagesCount / 2);
+                middleOne = this.page >= middleOne ? this.page : middleOne;
+                var lastOne = middleOne + Math.floor(showPagesCount / 2);
+                lastOne = lastOne >= pagesCount ? pagesCount : lastOne;
+                var firstOne = lastOne - showPagesCount + 1;
+                for (var i = firstOne; i <= lastOne; i++) {
+                    this.pages.push(i);
+                }
+            }
+        };
+        PagerComponent.prototype.onChangePerPage = function (event) {
+            if (this.currentPerPage) {
+                if (typeof this.currentPerPage === 'string' && this.currentPerPage.toLowerCase() === 'all') {
+                    this.source.getPaging().perPage = null;
+                }
+                else {
+                    this.source.getPaging().perPage = this.currentPerPage * 1;
+                    this.source.refresh();
+                }
+                this.initPages();
+            }
+        };
+        __decorate([
+            core.Input(),
+            __metadata("design:type", DataSource)
+        ], PagerComponent.prototype, "source", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Array)
+        ], PagerComponent.prototype, "perPageSelect", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], PagerComponent.prototype, "changePage", void 0);
+        PagerComponent = __decorate([
+            core.Component({
+                selector: 'ng2-smart-table-pager',
+                template: "\n    <nav *ngIf=\"shouldShow()\" class=\"ng2-smart-pagination-nav\">\n      <ul class=\"ng2-smart-pagination pagination\">\n        <li class=\"ng2-smart-page-item page-item\" [ngClass]=\"{disabled: getPage() == 1}\">\n          <a class=\"ng2-smart-page-link page-link\" href=\"#\"\n          (click)=\"getPage() == 1 ? false : paginate(1)\" aria-label=\"First\">\n            <span aria-hidden=\"true\">&laquo;</span>\n            <span class=\"sr-only\">First</span>\n          </a>\n        </li>\n        <li class=\"ng2-smart-page-item page-item\" [ngClass]=\"{disabled: getPage() == 1}\">\n          <a class=\"ng2-smart-page-link page-link page-link-prev\" href=\"#\"\n             (click)=\"getPage() == 1 ? false : prev()\" aria-label=\"Prev\">\n            <span aria-hidden=\"true\">&lt;</span>\n            <span class=\"sr-only\">Prev</span>\n          </a>\n        </li>\n        <li class=\"ng2-smart-page-item page-item\"\n        [ngClass]=\"{active: getPage() == page}\" *ngFor=\"let page of getPages()\">\n          <span class=\"ng2-smart-page-link page-link\"\n          *ngIf=\"getPage() == page\">{{ page }} <span class=\"sr-only\">(current)</span></span>\n          <a class=\"ng2-smart-page-link page-link\" href=\"#\"\n          (click)=\"paginate(page)\" *ngIf=\"getPage() != page\">{{ page }}</a>\n        </li>\n\n        <li class=\"ng2-smart-page-item page-item\"\n            [ngClass]=\"{disabled: getPage() == getLast()}\">\n          <a class=\"ng2-smart-page-link page-link page-link-next\" href=\"#\"\n             (click)=\"getPage() == getLast() ? false : next()\" aria-label=\"Next\">\n            <span aria-hidden=\"true\">&gt;</span>\n            <span class=\"sr-only\">Next</span>\n          </a>\n        </li>\n        \n        <li class=\"ng2-smart-page-item page-item\"\n        [ngClass]=\"{disabled: getPage() == getLast()}\">\n          <a class=\"ng2-smart-page-link page-link\" href=\"#\"\n          (click)=\"getPage() == getLast() ? false : paginate(getLast())\" aria-label=\"Last\">\n            <span aria-hidden=\"true\">&raquo;</span>\n            <span class=\"sr-only\">Last</span>\n          </a>\n        </li>\n      </ul>\n    </nav>\n    \n    <nav *ngIf=\"perPageSelect && perPageSelect.length > 0\" class=\"ng2-smart-pagination-per-page\">\n      <label for=\"per-page\">\n        Per Page:\n      </label>\n      <select (change)=\"onChangePerPage($event)\" [(ngModel)]=\"currentPerPage\" id=\"per-page\">\n        <option *ngFor=\"let item of perPageSelect\" [value]=\"item\">{{ item }}</option>\n      </select>\n    </nav>\n  ",
+                styles: [".ng2-smart-pagination{display:inline-flex;font-size:.875em;padding:0}.ng2-smart-pagination .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}.ng2-smart-pagination .ng2-smart-page-item{display:inline}.ng2-smart-pagination .page-link-next,.ng2-smart-pagination .page-link-prev{font-size:10px}:host{display:flex;justify-content:space-between}:host select{margin:1rem 0 1rem 1rem}:host label{margin:1rem 0 1rem 1rem;line-height:2.5rem}"]
+            })
+        ], PagerComponent);
+        return PagerComponent;
+    }());
+
+    var PagerModule = /** @class */ (function () {
+        function PagerModule() {
+        }
+        PagerModule = __decorate([
+            core.NgModule({
+                imports: [
+                    common.CommonModule,
+                    forms.FormsModule,
+                ],
+                declarations: [
+                    PagerComponent,
+                ],
+                exports: [
+                    PagerComponent,
+                ],
+            })
+        ], PagerModule);
+        return PagerModule;
+    }());
+
+    var Ng2SmartTableTbodyComponent = /** @class */ (function () {
+        function Ng2SmartTableTbodyComponent() {
+            this.save = new core.EventEmitter();
+            this.cancel = new core.EventEmitter();
+            this.edit = new core.EventEmitter();
+            this.delete = new core.EventEmitter();
+            this.custom = new core.EventEmitter();
+            this.edited = new core.EventEmitter();
+            this.userSelectRow = new core.EventEmitter();
+            this.editRowSelect = new core.EventEmitter();
+            this.multipleSelectRow = new core.EventEmitter();
+            this.rowHover = new core.EventEmitter();
+        }
+        Object.defineProperty(Ng2SmartTableTbodyComponent.prototype, "tableColumnsCount", {
+            get: function () {
+                var actionColumns = this.isActionAdd || this.isActionEdit || this.isActionDelete ? 1 : 0;
+                return this.grid.getColumns().length + actionColumns;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Ng2SmartTableTbodyComponent.prototype.ngOnChanges = function () {
+            this.isMultiSelectVisible = this.grid.isMultiSelectVisible();
+            this.showActionColumnLeft = this.grid.showActionColumn('left');
+            this.mode = this.grid.getSetting('mode');
+            this.editInputClass = this.grid.getSetting('edit.inputClass');
+            this.showActionColumnRight = this.grid.showActionColumn('right');
+            this.isActionAdd = this.grid.getSetting('actions.add');
+            this.isActionEdit = this.grid.getSetting('actions.edit');
+            this.isActionDelete = this.grid.getSetting('actions.delete');
+            this.noDataMessage = this.grid.getSetting('noDataMessage');
+        };
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Grid)
+        ], Ng2SmartTableTbodyComponent.prototype, "grid", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", DataSource)
+        ], Ng2SmartTableTbodyComponent.prototype, "source", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", core.EventEmitter)
+        ], Ng2SmartTableTbodyComponent.prototype, "deleteConfirm", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", core.EventEmitter)
+        ], Ng2SmartTableTbodyComponent.prototype, "editConfirm", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Function)
+        ], Ng2SmartTableTbodyComponent.prototype, "rowClassFunction", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableTbodyComponent.prototype, "save", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableTbodyComponent.prototype, "cancel", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableTbodyComponent.prototype, "edit", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableTbodyComponent.prototype, "delete", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableTbodyComponent.prototype, "custom", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableTbodyComponent.prototype, "edited", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableTbodyComponent.prototype, "userSelectRow", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableTbodyComponent.prototype, "editRowSelect", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableTbodyComponent.prototype, "multipleSelectRow", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableTbodyComponent.prototype, "rowHover", void 0);
+        Ng2SmartTableTbodyComponent = __decorate([
+            core.Component({
+                selector: '[ng2-st-tbody]',
+                template: "<tr *ngFor=\"let row of grid.getRows()\" (click)=\"userSelectRow.emit(row)\" (mouseover)=\"rowHover.emit(row)\" class=\"ng2-smart-row\" [className]=\"rowClassFunction(row)\" [ngClass]=\"{selected: row.isSelected}\">\n  <td *ngIf=\"isMultiSelectVisible\" class=\"ng2-smart-actions ng2-smart-action-multiple-select\" (click)=\"multipleSelectRow.emit(row)\">\n    <input type=\"checkbox\" class=\"form-control\" [ngModel]=\"row.isSelected\">\n  </td>\n  <td *ngIf=\"!row.isInEditing && showActionColumnLeft\" class=\"ng2-smart-actions\">\n    <ng2-st-tbody-custom [grid]=\"grid\" (custom)=\"custom.emit($event)\" [row]=\"row\" [source]=\"source\"></ng2-st-tbody-custom>\n\n    <ng2-st-tbody-edit-delete [grid]=\"grid\"\n                              [deleteConfirm]=\"deleteConfirm\"\n                              [editConfirm]=\"editConfirm\"\n                              (edit)=\"edit.emit(row)\"\n                              (delete)=\"delete.emit(row)\"\n                              (editRowSelect)=\"editRowSelect.emit($event)\"\n                              [row]=\"row\"\n                              [source]=\"source\">\n    </ng2-st-tbody-edit-delete>\n  </td>\n   <td *ngIf=\"row.isInEditing && showActionColumnLeft\"  class=\"ng2-smart-actions\">\n    <ng2-st-tbody-create-cancel [grid]=\"grid\" [row]=\"row\" [editConfirm]=\"editConfirm\"></ng2-st-tbody-create-cancel>\n  </td>\n  <td *ngFor=\"let cell of row.cells\">\n    <ng2-smart-table-cell [cell]=\"cell\"\n                          [grid]=\"grid\"\n                          [row]=\"row\"\n                          [isNew]=\"false\"\n                          [mode]=\"mode\"\n                          [editConfirm]=\"editConfirm\"\n                          [inputClass]=\"editInputClass\"\n                          [isInEditing]=\"row.isInEditing\">\n    </ng2-smart-table-cell>\n  </td>\n\n  <td *ngIf=\"row.isInEditing && showActionColumnRight\"  class=\"ng2-smart-actions\">\n    <ng2-st-tbody-create-cancel [grid]=\"grid\" [row]=\"row\" [editConfirm]=\"editConfirm\"></ng2-st-tbody-create-cancel>\n  </td>\n\n  <td *ngIf=\"!row.isInEditing && showActionColumnRight\" class=\"ng2-smart-actions\">\n    <ng2-st-tbody-custom [grid]=\"grid\" (custom)=\"custom.emit($event)\" [row]=\"row\" [source]=\"source\"></ng2-st-tbody-custom>\n\n    <ng2-st-tbody-edit-delete [grid]=\"grid\"\n                              [deleteConfirm]=\"deleteConfirm\"\n                              [editConfirm]=\"editConfirm\"\n                              [row]=\"row\"\n                              [source]=\"source\"\n                              (edit)=\"edit.emit(row)\"\n                              (delete)=\"delete.emit(row)\"\n                              (editRowSelect)=\"editRowSelect.emit($event)\">\n    </ng2-st-tbody-edit-delete>\n  </td>\n</tr>\n\n<tr *ngIf=\"grid.getRows().length == 0\">\n  <td [attr.colspan]=\"tableColumnsCount\">\n    {{ noDataMessage }}\n  </td>\n</tr>\n",
+                styles: [":host .ng2-smart-row.selected{background:rgba(0,0,0,.05)}:host .ng2-smart-row .ng2-smart-actions.ng2-smart-action-multiple-select{text-align:center}:host ::ng-deep ng2-st-tbody-create-cancel a:first-child,:host ::ng-deep ng2-st-tbody-edit-delete a:first-child{margin-right:.25rem}"]
+            })
+        ], Ng2SmartTableTbodyComponent);
+        return Ng2SmartTableTbodyComponent;
+    }());
+
+    var TbodyCreateCancelComponent = /** @class */ (function () {
+        function TbodyCreateCancelComponent() {
+        }
+        TbodyCreateCancelComponent.prototype.onSave = function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.grid.save(this.row, this.editConfirm);
+        };
+        TbodyCreateCancelComponent.prototype.onCancelEdit = function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.row.isInEditing = false;
+        };
+        TbodyCreateCancelComponent.prototype.ngOnChanges = function () {
+            this.saveButtonContent = this.grid.getSetting('edit.saveButtonContent');
+            this.cancelButtonContent = this.grid.getSetting('edit.cancelButtonContent');
+        };
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Grid)
+        ], TbodyCreateCancelComponent.prototype, "grid", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Row)
+        ], TbodyCreateCancelComponent.prototype, "row", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", core.EventEmitter)
+        ], TbodyCreateCancelComponent.prototype, "editConfirm", void 0);
+        TbodyCreateCancelComponent = __decorate([
+            core.Component({
+                selector: 'ng2-st-tbody-create-cancel',
+                template: "\n    <a href=\"#\" class=\"ng2-smart-action ng2-smart-action-edit-save\"\n        [innerHTML]=\"saveButtonContent\" (click)=\"onSave($event)\"></a>\n    <a href=\"#\" class=\"ng2-smart-action ng2-smart-action-edit-cancel\"\n        [innerHTML]=\"cancelButtonContent\" (click)=\"onCancelEdit($event)\"></a>\n  "
+            })
+        ], TbodyCreateCancelComponent);
+        return TbodyCreateCancelComponent;
+    }());
+
+    var TbodyEditDeleteComponent = /** @class */ (function () {
+        function TbodyEditDeleteComponent() {
+            this.edit = new core.EventEmitter();
+            this.delete = new core.EventEmitter();
+            this.editRowSelect = new core.EventEmitter();
+        }
+        TbodyEditDeleteComponent.prototype.onEdit = function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.editRowSelect.emit(this.row);
+            if (this.grid.getSetting('mode') === 'external') {
+                this.edit.emit({
+                    data: this.row.getData(),
+                    source: this.source,
+                });
+            }
+            else {
+                this.grid.edit(this.row);
+            }
+        };
+        TbodyEditDeleteComponent.prototype.onDelete = function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (this.grid.getSetting('mode') === 'external') {
+                this.delete.emit({
+                    data: this.row.getData(),
+                    source: this.source,
+                });
+            }
+            else {
+                this.grid.delete(this.row, this.deleteConfirm);
+            }
+        };
+        TbodyEditDeleteComponent.prototype.ngOnChanges = function () {
+            this.isActionEdit = this.grid.getSetting('actions.edit');
+            this.isActionDelete = this.grid.getSetting('actions.delete');
+            this.editRowButtonContent = this.grid.getSetting('edit.editButtonContent');
+            this.deleteRowButtonContent = this.grid.getSetting('delete.deleteButtonContent');
+        };
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Grid)
+        ], TbodyEditDeleteComponent.prototype, "grid", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Row)
+        ], TbodyEditDeleteComponent.prototype, "row", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", DataSource)
+        ], TbodyEditDeleteComponent.prototype, "source", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", core.EventEmitter)
+        ], TbodyEditDeleteComponent.prototype, "deleteConfirm", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", core.EventEmitter)
+        ], TbodyEditDeleteComponent.prototype, "editConfirm", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], TbodyEditDeleteComponent.prototype, "edit", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], TbodyEditDeleteComponent.prototype, "delete", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], TbodyEditDeleteComponent.prototype, "editRowSelect", void 0);
+        TbodyEditDeleteComponent = __decorate([
+            core.Component({
+                selector: 'ng2-st-tbody-edit-delete',
+                changeDetection: core.ChangeDetectionStrategy.OnPush,
+                template: "\n    <a href=\"#\" *ngIf=\"isActionEdit\" class=\"ng2-smart-action ng2-smart-action-edit-edit\"\n        [innerHTML]=\"editRowButtonContent\" (click)=\"onEdit($event)\"></a>\n    <a href=\"#\" *ngIf=\"isActionDelete\" class=\"ng2-smart-action ng2-smart-action-delete-delete\"\n        [innerHTML]=\"deleteRowButtonContent\" (click)=\"onDelete($event)\"></a>\n  "
+            })
+        ], TbodyEditDeleteComponent);
+        return TbodyEditDeleteComponent;
+    }());
+
+    var TbodyCustomComponent = /** @class */ (function () {
+        function TbodyCustomComponent() {
+            this.custom = new core.EventEmitter();
+        }
+        TbodyCustomComponent.prototype.onCustom = function (action, event) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.custom.emit({
+                action: action.name,
+                data: this.row.getData(),
+                source: this.source
+            });
+        };
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Grid)
+        ], TbodyCustomComponent.prototype, "grid", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Row)
+        ], TbodyCustomComponent.prototype, "row", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Object)
+        ], TbodyCustomComponent.prototype, "source", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], TbodyCustomComponent.prototype, "custom", void 0);
+        TbodyCustomComponent = __decorate([
+            core.Component({
+                selector: 'ng2-st-tbody-custom',
+                changeDetection: core.ChangeDetectionStrategy.OnPush,
+                template: "\n      <a *ngFor=\"let action of grid.getSetting('actions.custom')\" href=\"#\"\n         class=\"ng2-smart-action ng2-smart-action-custom-custom\" \n         [innerHTML]=\"action.title\"\n         (click)=\"onCustom(action, $event)\"></a>\n        "
+            })
+        ], TbodyCustomComponent);
+        return TbodyCustomComponent;
+    }());
+
+    var TBODY_COMPONENTS = [
+        TbodyCreateCancelComponent,
+        TbodyEditDeleteComponent,
+        TbodyCustomComponent,
+        Ng2SmartTableTbodyComponent
+    ];
+    var TBodyModule = /** @class */ (function () {
+        function TBodyModule() {
+        }
+        TBodyModule = __decorate([
+            core.NgModule({
+                imports: [
+                    common.CommonModule,
+                    forms.FormsModule,
+                    CellModule,
+                ],
+                declarations: __spread(TBODY_COMPONENTS),
+                exports: __spread(TBODY_COMPONENTS),
+            })
+        ], TBodyModule);
+        return TBodyModule;
+    }());
+
+    var Ng2SmartTableTheadComponent = /** @class */ (function () {
+        function Ng2SmartTableTheadComponent() {
+            this.sort = new core.EventEmitter();
+            this.selectAllRows = new core.EventEmitter();
+            this.create = new core.EventEmitter();
+            this.filter = new core.EventEmitter();
+        }
+        Ng2SmartTableTheadComponent.prototype.ngOnChanges = function () {
+            this.isHideHeader = this.grid.getSetting('hideHeader');
+            this.isHideSubHeader = this.grid.getSetting('hideSubHeader');
+        };
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Grid)
+        ], Ng2SmartTableTheadComponent.prototype, "grid", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", DataSource)
+        ], Ng2SmartTableTheadComponent.prototype, "source", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Boolean)
+        ], Ng2SmartTableTheadComponent.prototype, "isAllSelected", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", core.EventEmitter)
+        ], Ng2SmartTableTheadComponent.prototype, "createConfirm", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableTheadComponent.prototype, "sort", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableTheadComponent.prototype, "selectAllRows", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableTheadComponent.prototype, "create", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableTheadComponent.prototype, "filter", void 0);
+        Ng2SmartTableTheadComponent = __decorate([
+            core.Component({
+                selector: '[ng2-st-thead]',
+                template: "<tr ng2-st-thead-titles-row *ngIf=\"!isHideHeader\"\n                            class=\"ng2-smart-titles\"\n                            [grid]=\"grid\"\n                            [isAllSelected]=\"isAllSelected\"\n                            [source]=\"source\"\n                            (sort)=\"sort.emit($event)\"\n                            (selectAllRows)=\"selectAllRows.emit($event)\">\n</tr>\n\n<tr ng2-st-thead-filters-row *ngIf=\"!isHideSubHeader\"\n                              class=\"ng2-smart-filters\"\n                              [grid]=\"grid\"\n                              [source]=\"source\"\n                              (create)=\"create.emit($event)\"\n                              (filter)=\"filter.emit($event)\">\n</tr>\n\n<tr ng2-st-thead-form-row *ngIf=\"grid.createFormShown\"\n                          [grid]=\"grid\"\n                          [createConfirm]=\"createConfirm\">\n</tr>\n"
+            })
+        ], Ng2SmartTableTheadComponent);
+        return Ng2SmartTableTheadComponent;
+    }());
+
+    var ActionsComponent = /** @class */ (function () {
+        function ActionsComponent() {
+            this.create = new core.EventEmitter();
+        }
+        ActionsComponent.prototype.ngOnChanges = function () {
+            this.createButtonContent = this.grid.getSetting('add.createButtonContent');
+            this.cancelButtonContent = this.grid.getSetting('add.cancelButtonContent');
+        };
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Grid)
+        ], ActionsComponent.prototype, "grid", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], ActionsComponent.prototype, "create", void 0);
+        ActionsComponent = __decorate([
+            core.Component({
+                selector: 'ng2-st-actions',
+                template: "\n    <a href=\"#\" class=\"ng2-smart-action ng2-smart-action-add-create\"\n        [innerHTML]=\"createButtonContent\"\n        (click)=\"$event.preventDefault();create.emit($event)\"></a>\n    <a href=\"#\" class=\"ng2-smart-action ng2-smart-action-add-cancel\"\n        [innerHTML]=\"cancelButtonContent\"\n        (click)=\"$event.preventDefault();grid.createFormShown = false;\"></a>\n  "
+            })
+        ], ActionsComponent);
+        return ActionsComponent;
+    }());
+
+    var ActionsTitleComponent = /** @class */ (function () {
+        function ActionsTitleComponent(ref) {
+            this.ref = ref;
+        }
+        ActionsTitleComponent.prototype.ngAfterViewInit = function () {
+            this.ref.nativeElement.classList.add('ng2-smart-actions');
+        };
+        ActionsTitleComponent.prototype.ngOnChanges = function () {
+            this.actionsColumnTitle = this.grid.getSetting('actions.columnTitle');
+        };
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Grid)
+        ], ActionsTitleComponent.prototype, "grid", void 0);
+        ActionsTitleComponent = __decorate([
+            core.Component({
+                selector: '[ng2-st-actions-title]',
+                template: "\n    <div class=\"ng2-smart-title\">{{ actionsColumnTitle }}</div>\n  "
+            }),
+            __metadata("design:paramtypes", [core.ElementRef])
+        ], ActionsTitleComponent);
+        return ActionsTitleComponent;
+    }());
+
+    var AddButtonComponent = /** @class */ (function () {
+        function AddButtonComponent(ref) {
+            this.ref = ref;
+            this.create = new core.EventEmitter();
+        }
+        AddButtonComponent.prototype.ngAfterViewInit = function () {
+            this.ref.nativeElement.classList.add('ng2-smart-actions-title', 'ng2-smart-actions-title-add');
+        };
+        AddButtonComponent.prototype.ngOnChanges = function () {
+            this.isActionAdd = this.grid.getSetting('actions.add');
+            this.addNewButtonContent = this.grid.getSetting('add.addButtonContent');
+        };
+        AddButtonComponent.prototype.onAdd = function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (this.grid.getSetting('mode') === 'external') {
+                this.create.emit({
+                    source: this.source,
+                });
+            }
+            else {
+                this.grid.createFormShown = true;
+            }
+        };
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Grid)
+        ], AddButtonComponent.prototype, "grid", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", DataSource)
+        ], AddButtonComponent.prototype, "source", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], AddButtonComponent.prototype, "create", void 0);
+        AddButtonComponent = __decorate([
+            core.Component({
+                selector: '[ng2-st-add-button]',
+                template: "\n    <a *ngIf=\"isActionAdd\" href=\"#\" class=\"ng2-smart-action ng2-smart-action-add-add\"\n        [innerHTML]=\"addNewButtonContent\" (click)=\"onAdd($event)\"></a>\n  "
+            }),
+            __metadata("design:paramtypes", [core.ElementRef])
+        ], AddButtonComponent);
+        return AddButtonComponent;
+    }());
+
+    var CheckboxSelectAllComponent = /** @class */ (function () {
+        function CheckboxSelectAllComponent() {
+        }
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Grid)
+        ], CheckboxSelectAllComponent.prototype, "grid", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", DataSource)
+        ], CheckboxSelectAllComponent.prototype, "source", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Boolean)
+        ], CheckboxSelectAllComponent.prototype, "isAllSelected", void 0);
+        CheckboxSelectAllComponent = __decorate([
+            core.Component({
+                selector: '[ng2-st-checkbox-select-all]',
+                template: "\n    <input type=\"checkbox\" [ngModel]=\"isAllSelected\">\n  "
+            })
+        ], CheckboxSelectAllComponent);
+        return CheckboxSelectAllComponent;
+    }());
+
+    var ColumnTitleComponent = /** @class */ (function () {
+        function ColumnTitleComponent() {
+            this.sort = new core.EventEmitter();
+        }
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Column)
+        ], ColumnTitleComponent.prototype, "column", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", DataSource)
+        ], ColumnTitleComponent.prototype, "source", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], ColumnTitleComponent.prototype, "sort", void 0);
+        ColumnTitleComponent = __decorate([
+            core.Component({
+                selector: 'ng2-st-column-title',
+                template: "\n    <div class=\"ng2-smart-title\">\n      <ng2-smart-table-title [source]=\"source\" [column]=\"column\" (sort)=\"sort.emit($event)\"></ng2-smart-table-title>\n    </div>\n  "
+            })
+        ], ColumnTitleComponent);
+        return ColumnTitleComponent;
+    }());
+
+    var TitleComponent = /** @class */ (function () {
+        function TitleComponent() {
+            this.currentDirection = '';
+            this.sort = new core.EventEmitter();
+        }
+        TitleComponent.prototype.ngOnChanges = function (changes) {
+            var _this = this;
+            if (changes.source) {
+                if (!changes.source.firstChange) {
+                    this.dataChangedSub.unsubscribe();
+                }
+                this.dataChangedSub = this.source.onChanged().subscribe(function (dataChanges) {
+                    var sortConf = _this.source.getSort();
+                    if (sortConf.length > 0 && sortConf[0]['field'] === _this.column.id) {
+                        _this.currentDirection = sortConf[0]['direction'];
+                    }
+                    else {
+                        _this.currentDirection = '';
+                    }
+                    sortConf.forEach(function (fieldConf) {
+                    });
+                });
+            }
+        };
+        TitleComponent.prototype._sort = function (event) {
+            event.preventDefault();
+            this.changeSortDirection();
+            this.source.setSort([
+                {
+                    field: this.column.id,
+                    direction: this.currentDirection,
+                    compare: this.column.getCompareFunction(),
+                },
+            ]);
+            this.sort.emit(null);
+        };
+        TitleComponent.prototype.changeSortDirection = function () {
+            if (this.currentDirection) {
+                var newDirection = this.currentDirection === 'asc' ? 'desc' : 'asc';
+                this.currentDirection = newDirection;
+            }
+            else {
+                this.currentDirection = this.column.sortDirection;
+            }
+            return this.currentDirection;
+        };
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Column)
+        ], TitleComponent.prototype, "column", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", DataSource)
+        ], TitleComponent.prototype, "source", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], TitleComponent.prototype, "sort", void 0);
+        TitleComponent = __decorate([
+            core.Component({
+                selector: 'ng2-smart-table-title',
+                template: "\n    <a href=\"#\" *ngIf=\"column.isSortable\"\n                (click)=\"_sort($event)\"\n                class=\"ng2-smart-sort-link sort\"\n                [ngClass]=\"currentDirection\">\n      {{ column.title }}\n    </a>\n    <span class=\"ng2-smart-sort\" *ngIf=\"!column.isSortable\">{{ column.title }}</span>\n  ",
+                styles: ["a.sort.asc,a.sort.desc{font-weight:700}a.sort.asc::after,a.sort.desc::after{content:\"\";display:inline-block;width:0;height:0;border-bottom:4px solid rgba(0,0,0,.3);border-top:4px solid transparent;border-left:4px solid transparent;border-right:4px solid transparent;margin-bottom:2px}a.sort.desc::after{-webkit-transform:rotate(-180deg);transform:rotate(-180deg);margin-bottom:-2px}"]
+            })
+        ], TitleComponent);
+        return TitleComponent;
+    }());
+
+    var TheadFitlersRowComponent = /** @class */ (function () {
+        function TheadFitlersRowComponent() {
+            this.create = new core.EventEmitter();
+            this.filter = new core.EventEmitter();
+        }
+        TheadFitlersRowComponent.prototype.ngOnChanges = function () {
+            this.isMultiSelectVisible = this.grid.isMultiSelectVisible();
+            this.showActionColumnLeft = this.grid.showActionColumn('left');
+            this.showActionColumnRight = this.grid.showActionColumn('right');
+            this.filterInputClass = this.grid.getSetting('filter.inputClass');
+        };
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Grid)
+        ], TheadFitlersRowComponent.prototype, "grid", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", DataSource)
+        ], TheadFitlersRowComponent.prototype, "source", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], TheadFitlersRowComponent.prototype, "create", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], TheadFitlersRowComponent.prototype, "filter", void 0);
+        TheadFitlersRowComponent = __decorate([
+            core.Component({
+                selector: '[ng2-st-thead-filters-row]',
+                template: "\n    <th *ngIf=\"isMultiSelectVisible\"></th>\n    <th ng2-st-add-button *ngIf=\"showActionColumnLeft\"\n                          [grid]=\"grid\"\n                          (create)=\"create.emit($event)\">\n    </th>\n    <th *ngFor=\"let column of grid.getColumns()\" class=\"ng2-smart-th {{ column.id }}\">\n      <ng2-smart-table-filter [source]=\"source\"\n                              [column]=\"column\"\n                              [inputClass]=\"filterInputClass\"\n                              (filter)=\"filter.emit($event)\">\n      </ng2-smart-table-filter>\n    </th>\n    <th ng2-st-add-button *ngIf=\"showActionColumnRight\"\n                          [grid]=\"grid\"\n                          [source]=\"source\"\n                          (create)=\"create.emit($event)\">\n    </th>\n  "
+            })
+        ], TheadFitlersRowComponent);
+        return TheadFitlersRowComponent;
+    }());
+
+    var TheadFormRowComponent = /** @class */ (function () {
+        function TheadFormRowComponent() {
+            this.create = new core.EventEmitter();
+        }
+        TheadFormRowComponent.prototype.onCreate = function (event) {
+            event.stopPropagation();
+            this.grid.create(this.grid.getNewRow(), this.createConfirm);
+        };
+        TheadFormRowComponent.prototype.ngOnChanges = function () {
+            this.isMultiSelectVisible = this.grid.isMultiSelectVisible();
+            this.showActionColumnLeft = this.grid.showActionColumn('left');
+            this.showActionColumnRight = this.grid.showActionColumn('right');
+            this.addInputClass = this.grid.getSetting('add.inputClass');
+        };
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Grid)
+        ], TheadFormRowComponent.prototype, "grid", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Row)
+        ], TheadFormRowComponent.prototype, "row", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", core.EventEmitter)
+        ], TheadFormRowComponent.prototype, "createConfirm", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], TheadFormRowComponent.prototype, "create", void 0);
+        TheadFormRowComponent = __decorate([
+            core.Component({
+                selector: '[ng2-st-thead-form-row]',
+                template: "\n      <td *ngIf=\"\"></td>\n      <td  *ngIf=\"showActionColumnLeft\"  class=\"ng2-smart-actions\">\n        <ng2-st-actions [grid]=\"grid\" (create)=\"onCreate($event)\"></ng2-st-actions>\n      </td>\n      <td *ngFor=\"let cell of grid.getNewRow().getCells()\">\n        <ng2-smart-table-cell [cell]=\"cell\"\n                              [grid]=\"grid\"\n                              [isNew]=\"true\"\n                              [createConfirm]=\"createConfirm\"\n                              [inputClass]=\"addInputClass\"\n                              [isInEditing]=\"grid.getNewRow().isInEditing\"\n                              (edited)=\"onCreate($event)\">\n        </ng2-smart-table-cell>\n      </td>\n      <td  *ngIf=\"showActionColumnRight\"  class=\"ng2-smart-actions\">\n        <ng2-st-actions [grid]=\"grid\" (create)=\"onCreate($event)\"></ng2-st-actions>\n      </td>\n  "
+            })
+        ], TheadFormRowComponent);
+        return TheadFormRowComponent;
+    }());
+
+    var TheadTitlesRowComponent = /** @class */ (function () {
+        function TheadTitlesRowComponent() {
+            this.sort = new core.EventEmitter();
+            this.selectAllRows = new core.EventEmitter();
+        }
+        TheadTitlesRowComponent.prototype.ngOnChanges = function () {
+            this.isMultiSelectVisible = this.grid.isMultiSelectVisible();
+            this.showActionColumnLeft = this.grid.showActionColumn('left');
+            this.showActionColumnRight = this.grid.showActionColumn('right');
+        };
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Grid)
+        ], TheadTitlesRowComponent.prototype, "grid", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Boolean)
+        ], TheadTitlesRowComponent.prototype, "isAllSelected", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", DataSource)
+        ], TheadTitlesRowComponent.prototype, "source", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], TheadTitlesRowComponent.prototype, "sort", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], TheadTitlesRowComponent.prototype, "selectAllRows", void 0);
+        TheadTitlesRowComponent = __decorate([
+            core.Component({
+                selector: '[ng2-st-thead-titles-row]',
+                template: "\n    <th ng2-st-checkbox-select-all *ngIf=\"isMultiSelectVisible\"\n                                   [grid]=\"grid\"\n                                   [source]=\"source\"\n                                   [isAllSelected]=\"isAllSelected\"\n                                   (click)=\"selectAllRows.emit($event)\">\n    </th>\n    <th ng2-st-actions-title *ngIf=\"showActionColumnLeft\" [grid]=\"grid\"></th>\n    <th *ngFor=\"let column of grid.getColumns()\" class=\"ng2-smart-th {{ column.id }}\" [ngClass]=\"column.class\"\n      [style.width]=\"column.width\" >\n      <ng2-st-column-title [source]=\"source\" [column]=\"column\" (sort)=\"sort.emit($event)\"></ng2-st-column-title>\n    </th>\n    <th ng2-st-actions-title *ngIf=\"showActionColumnRight\" [grid]=\"grid\"></th>\n  "
+            })
+        ], TheadTitlesRowComponent);
+        return TheadTitlesRowComponent;
+    }());
+
+    var THEAD_COMPONENTS = [
+        ActionsComponent,
+        ActionsTitleComponent,
+        AddButtonComponent,
+        CheckboxSelectAllComponent,
+        ColumnTitleComponent,
+        TitleComponent,
+        TheadFitlersRowComponent,
+        TheadFormRowComponent,
+        TheadTitlesRowComponent,
+        Ng2SmartTableTheadComponent,
+    ];
+    var THeadModule = /** @class */ (function () {
+        function THeadModule() {
+        }
+        THeadModule = __decorate([
+            core.NgModule({
+                imports: [
+                    common.CommonModule,
+                    forms.FormsModule,
+                    FilterModule,
+                    CellModule,
+                ],
+                declarations: __spread(THEAD_COMPONENTS),
+                exports: __spread(THEAD_COMPONENTS),
+            })
+        ], THeadModule);
+        return THeadModule;
     }());
 
     function compareValues(direction, a, b) {
@@ -2745,7 +2623,6 @@
         function Ng2SmartTableComponent() {
             this.settings = {};
             this.rowSelect = new core.EventEmitter();
-            this.rowDeselect = new core.EventEmitter();
             this.userRowSelect = new core.EventEmitter();
             this.delete = new core.EventEmitter();
             this.edit = new core.EventEmitter();
@@ -2758,13 +2635,6 @@
             this.defaultSettings = {
                 mode: 'inline',
                 selectMode: 'single',
-                /**
-                 * Points to an element in all data
-                 *
-                 * when < 0 all lines must be deselected
-                 */
-                selectedRowIndex: 0,
-                switchPageToSelectedRowPage: false,
                 hideHeader: false,
                 hideSubHeader: false,
                 actions: {
@@ -2804,13 +2674,11 @@
                 columns: {},
                 pager: {
                     display: true,
-                    page: 1,
                     perPage: 10,
                 },
-                rowClassFunction: function () { return ''; },
+                rowClassFunction: function () { return ""; }
             };
             this.isAllSelected = false;
-            this.destroyed$ = new rxjs.Subject();
         }
         Ng2SmartTableComponent.prototype.ngOnChanges = function (changes) {
             if (this.grid) {
@@ -2833,44 +2701,6 @@
             this.isPagerDisplay = this.grid.getSetting('pager.display');
             this.perPageSelect = this.grid.getSetting('pager.perPageSelect');
             this.rowClassFunction = this.grid.getSetting('rowClassFunction');
-        };
-        Ng2SmartTableComponent.prototype.ngOnDestroy = function () {
-            this.destroyed$.next();
-        };
-        Ng2SmartTableComponent.prototype.selectRow = function (index, switchPageToSelectedRowPage) {
-            if (switchPageToSelectedRowPage === void 0) { switchPageToSelectedRowPage = this.grid.getSetting('switchPageToSelectedRowPage'); }
-            if (!this.grid) {
-                return;
-            }
-            this.grid.settings.selectedRowIndex = index;
-            if (this.isIndexOutOfRange(index)) {
-                // we need to deselect all rows if we got an incorrect index
-                this.deselectAllRows();
-                return;
-            }
-            if (switchPageToSelectedRowPage) {
-                var source = this.source;
-                var paging = source.getPaging();
-                var page = getPageForRowIndex(index, paging.perPage);
-                index = index % paging.perPage;
-                this.grid.settings.selectedRowIndex = index;
-                if (page !== paging.page) {
-                    source.setPage(page);
-                    return;
-                }
-            }
-            var row = this.grid.getRows()[index];
-            if (row) {
-                this.onSelectRow(row);
-            }
-            else {
-                // we need to deselect all rows if we got an incorrect index
-                this.deselectAllRows();
-            }
-        };
-        Ng2SmartTableComponent.prototype.deselectAllRows = function () {
-            this.grid.dataSet.deselectAll();
-            this.emitDeselectRow(null);
         };
         Ng2SmartTableComponent.prototype.editRowSelect = function (row) {
             if (this.grid.getSetting('selectMode') === 'multi') {
@@ -2909,10 +2739,10 @@
             this.emitSelectRow(row);
         };
         Ng2SmartTableComponent.prototype.initGrid = function () {
+            var _this = this;
             this.source = this.prepareSource();
             this.grid = new Grid(this.source, this.prepareSettings());
-            this.subscribeToOnSelectRow();
-            this.subscribeToOnDeselectRow();
+            this.grid.onSelectRow().subscribe(function (row) { return _this.emitSelectRow(row); });
         };
         Ng2SmartTableComponent.prototype.prepareSource = function () {
             if (this.source instanceof DataSource) {
@@ -2948,100 +2778,95 @@
             });
         };
         Ng2SmartTableComponent.prototype.emitSelectRow = function (row) {
-            var data = {
-                data: row ? row.getData() : null,
-                isSelected: row ? row.getIsSelected() : null,
-                source: this.source,
-            };
-            this.rowSelect.emit(data);
-            if (!(row === null || row === void 0 ? void 0 : row.isSelected)) {
-                this.rowDeselect.emit(data);
-            }
-        };
-        Ng2SmartTableComponent.prototype.emitDeselectRow = function (row) {
-            this.rowDeselect.emit({
+            this.rowSelect.emit({
                 data: row ? row.getData() : null,
                 isSelected: row ? row.getIsSelected() : null,
                 source: this.source,
             });
         };
-        Ng2SmartTableComponent.prototype.isIndexOutOfRange = function (index) {
-            var _a;
-            var dataAmount = (_a = this.source) === null || _a === void 0 ? void 0 : _a.count();
-            return index < 0 || (typeof dataAmount === 'number' && index >= dataAmount);
-        };
-        Ng2SmartTableComponent.prototype.subscribeToOnSelectRow = function () {
-            var _this = this;
-            if (this.onSelectRowSubscription) {
-                this.onSelectRowSubscription.unsubscribe();
-            }
-            this.onSelectRowSubscription = this.grid.onSelectRow()
-                .pipe(operators.takeUntil(this.destroyed$))
-                .subscribe(function (row) {
-                _this.emitSelectRow(row);
-            });
-        };
-        Ng2SmartTableComponent.prototype.subscribeToOnDeselectRow = function () {
-            var _this = this;
-            if (this.onDeselectRowSubscription) {
-                this.onDeselectRowSubscription.unsubscribe();
-            }
-            this.onDeselectRowSubscription = this.grid.onDeselectRow()
-                .pipe(operators.takeUntil(this.destroyed$))
-                .subscribe(function (row) {
-                _this.emitDeselectRow(row);
-            });
-        };
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableComponent.prototype, "source", void 0);
+        __decorate([
+            core.Input(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableComponent.prototype, "settings", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableComponent.prototype, "rowSelect", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableComponent.prototype, "userRowSelect", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableComponent.prototype, "delete", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableComponent.prototype, "edit", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableComponent.prototype, "create", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableComponent.prototype, "custom", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableComponent.prototype, "deleteConfirm", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableComponent.prototype, "editConfirm", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", Object)
+        ], Ng2SmartTableComponent.prototype, "createConfirm", void 0);
+        __decorate([
+            core.Output(),
+            __metadata("design:type", core.EventEmitter)
+        ], Ng2SmartTableComponent.prototype, "rowHover", void 0);
+        Ng2SmartTableComponent = __decorate([
+            core.Component({
+                selector: 'ng2-smart-table',
+                template: "<table [id]=\"tableId\" [ngClass]=\"tableClass\">\n\n  <thead ng2-st-thead *ngIf=\"!isHideHeader || !isHideSubHeader\"\n                      [grid]=\"grid\"\n                      [isAllSelected]=\"isAllSelected\"\n                      [source]=\"source\"\n                      [createConfirm]=\"createConfirm\"\n                      (create)=\"create.emit($event)\"\n                      (selectAllRows)=\"onSelectAllRows($event)\"\n                      (sort)=\"sort($event)\"\n                      (filter)=\"filter($event)\">\n  </thead>\n\n  <tbody ng2-st-tbody [grid]=\"grid\"\n                      [source]=\"source\"\n                      [deleteConfirm]=\"deleteConfirm\"\n                      [editConfirm]=\"editConfirm\"\n                      [rowClassFunction]=\"rowClassFunction\"\n                      (edit)=\"edit.emit($event)\"\n                      (delete)=\"delete.emit($event)\"\n                      (custom)=\"custom.emit($event)\"\n                      (userSelectRow)=\"onUserSelectRow($event)\"\n                      (editRowSelect)=\"editRowSelect($event)\"\n                      (multipleSelectRow)=\"multipleSelectRow($event)\"\n                      (rowHover)=\"onRowHover($event)\">\n  </tbody>\n\n</table>\n\n<ng2-smart-table-pager *ngIf=\"isPagerDisplay\"\n                        [source]=\"source\"\n                        [perPageSelect]=\"perPageSelect\"\n                        (changePage)=\"changePage($event)\">\n</ng2-smart-table-pager>\n",
+                styles: [":host{font-size:1rem}:host ::ng-deep *{box-sizing:border-box}:host ::ng-deep button,:host ::ng-deep input,:host ::ng-deep optgroup,:host ::ng-deep select,:host ::ng-deep textarea{color:inherit;font:inherit;margin:0}:host ::ng-deep table{line-height:1.5em;border-collapse:collapse;border-spacing:0;display:table;width:100%;max-width:100%;overflow:auto;word-break:normal;word-break:keep-all}:host ::ng-deep table tr th{font-weight:700}:host ::ng-deep table tr section{font-size:.75em;font-weight:700}:host ::ng-deep table tr td,:host ::ng-deep table tr th{font-size:.875em;margin:0;padding:.5em 1em}:host ::ng-deep a{color:#1e6bb8;text-decoration:none}:host ::ng-deep a:hover{text-decoration:underline}"]
+            })
+        ], Ng2SmartTableComponent);
         return Ng2SmartTableComponent;
     }());
-    Ng2SmartTableComponent.decorators = [
-        { type: core.Component, args: [{
-                    selector: 'ng2-smart-table',
-                    template: "<table [id]=\"tableId\" [ngClass]=\"tableClass\">\n\n  <thead ng2-st-thead *ngIf=\"!isHideHeader || !isHideSubHeader\"\n                      [grid]=\"grid\"\n                      [isAllSelected]=\"isAllSelected\"\n                      [source]=\"source\"\n                      [createConfirm]=\"createConfirm\"\n                      (create)=\"create.emit($event)\"\n                      (selectAllRows)=\"onSelectAllRows($event)\"\n                      (sort)=\"sort($event)\"\n                      (filter)=\"filter($event)\">\n  </thead>\n\n  <tbody ng2-st-tbody [grid]=\"grid\"\n                      [source]=\"source\"\n                      [deleteConfirm]=\"deleteConfirm\"\n                      [editConfirm]=\"editConfirm\"\n                      [rowClassFunction]=\"rowClassFunction\"\n                      (edit)=\"edit.emit($event)\"\n                      (delete)=\"delete.emit($event)\"\n                      (custom)=\"custom.emit($event)\"\n                      (userSelectRow)=\"onUserSelectRow($event)\"\n                      (editRowSelect)=\"editRowSelect($event)\"\n                      (multipleSelectRow)=\"multipleSelectRow($event)\"\n                      (rowHover)=\"onRowHover($event)\">\n  </tbody>\n\n</table>\n\n<ng2-smart-table-pager *ngIf=\"isPagerDisplay\"\n                        [source]=\"source\"\n                        [perPageSelect]=\"perPageSelect\"\n                        (changePage)=\"changePage($event)\">\n</ng2-smart-table-pager>\n",
-                    styles: [":host{font-size:1rem}:host ::ng-deep *{box-sizing:border-box}:host ::ng-deep button,:host ::ng-deep input,:host ::ng-deep optgroup,:host ::ng-deep select,:host ::ng-deep textarea{color:inherit;font:inherit;margin:0}:host ::ng-deep table{border-collapse:collapse;border-spacing:0;display:table;line-height:1.5em;max-width:100%;overflow:auto;width:100%;word-break:normal;word-break:keep-all}:host ::ng-deep table tr th{font-weight:700}:host ::ng-deep table tr section{font-size:.75em;font-weight:700}:host ::ng-deep table tr td,:host ::ng-deep table tr th{font-size:.875em;margin:0;padding:.5em 1em}:host ::ng-deep a{color:#1e6bb8;text-decoration:none}:host ::ng-deep a:hover{text-decoration:underline}"]
-                },] }
-    ];
-    Ng2SmartTableComponent.propDecorators = {
-        source: [{ type: core.Input }],
-        settings: [{ type: core.Input }],
-        rowSelect: [{ type: core.Output }],
-        rowDeselect: [{ type: core.Output }],
-        userRowSelect: [{ type: core.Output }],
-        delete: [{ type: core.Output }],
-        edit: [{ type: core.Output }],
-        create: [{ type: core.Output }],
-        custom: [{ type: core.Output }],
-        deleteConfirm: [{ type: core.Output }],
-        editConfirm: [{ type: core.Output }],
-        createConfirm: [{ type: core.Output }],
-        rowHover: [{ type: core.Output }]
-    };
 
     var Ng2SmartTableModule = /** @class */ (function () {
         function Ng2SmartTableModule() {
         }
+        Ng2SmartTableModule = __decorate([
+            core.NgModule({
+                imports: [
+                    common.CommonModule,
+                    forms.FormsModule,
+                    forms.ReactiveFormsModule,
+                    CellModule,
+                    FilterModule,
+                    PagerModule,
+                    TBodyModule,
+                    THeadModule,
+                ],
+                declarations: [
+                    Ng2SmartTableComponent,
+                ],
+                exports: [
+                    Ng2SmartTableComponent,
+                ],
+            })
+        ], Ng2SmartTableModule);
         return Ng2SmartTableModule;
     }());
-    Ng2SmartTableModule.decorators = [
-        { type: core.NgModule, args: [{
-                    imports: [
-                        common.CommonModule,
-                        forms.FormsModule,
-                        forms.ReactiveFormsModule,
-                        CellModule,
-                        FilterModule,
-                        PagerModule,
-                        TBodyModule,
-                        THeadModule,
-                    ],
-                    declarations: [
-                        Ng2SmartTableComponent,
-                    ],
-                    exports: [
-                        Ng2SmartTableComponent,
-                    ],
-                },] }
-    ];
 
     var ServerSourceConf = /** @class */ (function () {
         function ServerSourceConf(_a) {
@@ -3055,15 +2880,15 @@
             this.totalKey = totalKey ? totalKey : ServerSourceConf.TOTAL_KEY;
             this.dataKey = dataKey ? dataKey : ServerSourceConf.DATA_KEY;
         }
+        ServerSourceConf.SORT_FIELD_KEY = '_sort';
+        ServerSourceConf.SORT_DIR_KEY = '_order';
+        ServerSourceConf.PAGER_PAGE_KEY = '_page';
+        ServerSourceConf.PAGER_LIMIT_KEY = '_limit';
+        ServerSourceConf.FILTER_FIELD_KEY = '#field#_like';
+        ServerSourceConf.TOTAL_KEY = 'x-total-count';
+        ServerSourceConf.DATA_KEY = '';
         return ServerSourceConf;
     }());
-    ServerSourceConf.SORT_FIELD_KEY = '_sort';
-    ServerSourceConf.SORT_DIR_KEY = '_order';
-    ServerSourceConf.PAGER_PAGE_KEY = '_page';
-    ServerSourceConf.PAGER_LIMIT_KEY = '_limit';
-    ServerSourceConf.FILTER_FIELD_KEY = '#field#_like';
-    ServerSourceConf.TOTAL_KEY = 'x-total-count';
-    ServerSourceConf.DATA_KEY = '';
 
     var ServerDataSource = /** @class */ (function (_super) {
         __extends(ServerDataSource, _super);
@@ -3159,15 +2984,10 @@
         return ServerDataSource;
     }(LocalDataSource));
 
-    /**
-     * Generated bundle index. Do not edit.
-     */
-
     exports.Cell = Cell;
     exports.DefaultEditor = DefaultEditor;
     exports.DefaultFilter = DefaultFilter;
     exports.LocalDataSource = LocalDataSource;
-    exports.Ng2SmartTableComponent = Ng2SmartTableComponent;
     exports.Ng2SmartTableModule = Ng2SmartTableModule;
     exports.ServerDataSource = ServerDataSource;
     exports.ɵa = CellModule;
@@ -3186,11 +3006,12 @@
     exports.ɵbl = TheadFormRowComponent;
     exports.ɵbm = TheadTitlesRowComponent;
     exports.ɵbn = Ng2SmartTableTheadComponent;
-    exports.ɵbo = Row;
-    exports.ɵbp = DataSet;
-    exports.ɵbq = DataSource;
-    exports.ɵc = EditCellDefault;
-    exports.ɵd = CustomEditComponent;
+    exports.ɵbo = Ng2SmartTableComponent;
+    exports.ɵbp = Row;
+    exports.ɵbq = DataSet;
+    exports.ɵbr = DataSource;
+    exports.ɵc = CustomEditComponent;
+    exports.ɵd = EditCellDefault;
     exports.ɵe = DefaultEditComponent;
     exports.ɵf = EditCellComponent;
     exports.ɵg = CheckboxEditorComponent;
@@ -3201,8 +3022,8 @@
     exports.ɵl = CustomViewComponent;
     exports.ɵm = ViewCellComponent;
     exports.ɵn = FilterModule;
-    exports.ɵo = FilterDefault;
-    exports.ɵp = FilterComponent;
+    exports.ɵo = FilterComponent;
+    exports.ɵp = FilterDefault;
     exports.ɵq = DefaultFilterComponent;
     exports.ɵr = CustomFilterComponent;
     exports.ɵs = CheckboxFilterComponent;
@@ -3216,5 +3037,5 @@
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
-})));
+}));
 //# sourceMappingURL=ng2-smart-table.umd.js.map

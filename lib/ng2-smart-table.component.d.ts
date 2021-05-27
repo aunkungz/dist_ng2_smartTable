@@ -1,12 +1,11 @@
-import { SimpleChange, EventEmitter, OnChanges, OnDestroy } from '@angular/core';
+import { SimpleChange, EventEmitter, OnChanges } from '@angular/core';
 import { Grid } from './lib/grid';
 import { DataSource } from './lib/data-source/data-source';
 import { Row } from './lib/data-set/row';
-export declare class Ng2SmartTableComponent implements OnChanges, OnDestroy {
+export declare class Ng2SmartTableComponent implements OnChanges {
     source: any;
     settings: Object;
     rowSelect: EventEmitter<any>;
-    rowDeselect: EventEmitter<any>;
     userRowSelect: EventEmitter<any>;
     delete: EventEmitter<any>;
     edit: EventEmitter<any>;
@@ -26,15 +25,9 @@ export declare class Ng2SmartTableComponent implements OnChanges, OnDestroy {
     grid: Grid;
     defaultSettings: Object;
     isAllSelected: boolean;
-    private onSelectRowSubscription;
-    private onDeselectRowSubscription;
-    private destroyed$;
     ngOnChanges(changes: {
         [propertyName: string]: SimpleChange;
     }): void;
-    ngOnDestroy(): void;
-    selectRow(index: number, switchPageToSelectedRowPage?: boolean): void;
-    private deselectAllRows;
     editRowSelect(row: Row): void;
     onUserSelectRow(row: Row): void;
     onRowHover(row: Row): void;
@@ -51,8 +44,4 @@ export declare class Ng2SmartTableComponent implements OnChanges, OnDestroy {
     private resetAllSelector;
     private emitUserSelectRow;
     private emitSelectRow;
-    private emitDeselectRow;
-    private isIndexOutOfRange;
-    private subscribeToOnSelectRow;
-    private subscribeToOnDeselectRow;
 }

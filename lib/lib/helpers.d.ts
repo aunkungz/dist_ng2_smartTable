@@ -7,7 +7,7 @@
  * object as first argument, like this:
  *   deepExtend({}, yourObj_1, [yourObj_N]);
  */
-export declare const deepExtend: (...objects: Array<any>) => any;
+export declare const deepExtend: (...objects: any[]) => any;
 export declare class Deferred {
     promise: Promise<any>;
     resolve: any;
@@ -15,4 +15,3 @@ export declare class Deferred {
     constructor();
 }
 export declare function getDeepFromObject(object: {}, name: string, defaultValue?: any): any;
-export declare function getPageForRowIndex(index: number, perPage: number): number;
