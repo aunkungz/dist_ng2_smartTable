@@ -1652,61 +1652,63 @@ PagerComponent = __decorate([
     Component({
         selector: 'ng2-smart-table-pager',
         template: `
-    <nav *ngIf="shouldShow()" class="ng2-smart-pagination-nav">
-    Go to page
-    <input type="number" *ngIf="hasJumpToPage" class="form-control jump-to-page" (keyup.enter)="jumpToPage()" [(ngModel)]="jumpPage" placeholder=""/>
-    <button type="button" class="go-btn" (click)="jumpToPage()">Go</button>
-      <ul class="ng2-smart-pagination pagination">
-        <li class="ng2-smart-page-item page-item" [ngClass]="{disabled: getPage() == 1}">
-          <a class="ng2-smart-page-link page-link" href="#"
-          (click)="getPage() == 1 ? false : paginate(1)" aria-label="First">
-            <span aria-hidden="true">&laquo;</span>
-            <span class="sr-only">First</span>
-          </a>
-        </li>
-        <li class="ng2-smart-page-item page-item" [ngClass]="{disabled: getPage() == 1}">
-          <a class="ng2-smart-page-link page-link page-link-prev" href="#"
-             (click)="getPage() == 1 ? false : prev()" aria-label="Prev">
-            <span aria-hidden="true">&lt;</span>
-            <span class="sr-only">Prev</span>
-          </a>
-        </li>
-        <li class="ng2-smart-page-item page-item"
-        [ngClass]="{active: getPage() == page}" *ngFor="let page of getPages()">
-          <span class="ng2-smart-page-link page-link"
-          *ngIf="getPage() == page">{{ page }} <span class="sr-only">(current)</span></span>
-          <a class="ng2-smart-page-link page-link" href="#"
-          (click)="paginate(page)" *ngIf="getPage() != page">{{ page }}</a>
-        </li>
+      
+      <nav *ngIf="shouldShow()" class="ng2-smart-pagination-nav">
+      
+        <ul class="ng2-smart-pagination pagination">
+          Go to page
+          <input type="number" *ngIf="hasJumpToPage" class="form-control jump-to-page" (keyup.enter)="jumpToPage()" [(ngModel)]="jumpPage" placeholder=""/>
+          <button type="button" class="go-btn" (click)="jumpToPage()">Go</button>
+          <li class="ng2-smart-page-item page-item" [ngClass]="{disabled: getPage() == 1}">
+            <a class="ng2-smart-page-link page-link" href="#"
+            (click)="getPage() == 1 ? false : paginate(1)" aria-label="First">
+              <span aria-hidden="true">&laquo;</span>
+              <span class="sr-only">First</span>
+            </a>
+          </li>
+          <li class="ng2-smart-page-item page-item" [ngClass]="{disabled: getPage() == 1}">
+            <a class="ng2-smart-page-link page-link page-link-prev" href="#"
+              (click)="getPage() == 1 ? false : prev()" aria-label="Prev">
+              <span aria-hidden="true">&lt;</span>
+              <span class="sr-only">Prev</span>
+            </a>
+          </li>
+          <li class="ng2-smart-page-item page-item"
+          [ngClass]="{active: getPage() == page}" *ngFor="let page of getPages()">
+            <span class="ng2-smart-page-link page-link"
+            *ngIf="getPage() == page">{{ page }} <span class="sr-only">(current)</span></span>
+            <a class="ng2-smart-page-link page-link" href="#"
+            (click)="paginate(page)" *ngIf="getPage() != page">{{ page }}</a>
+          </li>
 
-        <li class="ng2-smart-page-item page-item"
-            [ngClass]="{disabled: getPage() == getLast()}">
-          <a class="ng2-smart-page-link page-link page-link-next" href="#"
-             (click)="getPage() == getLast() ? false : next()" aria-label="Next">
-            <span aria-hidden="true">&gt;</span>
-            <span class="sr-only">Next</span>
-          </a>
-        </li>
-        
-        <li class="ng2-smart-page-item page-item"
-        [ngClass]="{disabled: getPage() == getLast()}">
-          <a class="ng2-smart-page-link page-link" href="#"
-          (click)="getPage() == getLast() ? false : paginate(getLast())" aria-label="Last">
-            <span aria-hidden="true">&raquo;</span>
-            <span class="sr-only">Last</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
-    
-    <nav *ngIf="perPageSelect && perPageSelect.length > 0" class="ng2-smart-pagination-per-page">
-      <label for="per-page">
-        Per Page:
-      </label>
-      <select (change)="onChangePerPage($event)" [(ngModel)]="currentPerPage" id="per-page">
-        <option *ngFor="let item of perPageSelect" [value]="item">{{ item }}</option>
-      </select>
-    </nav>
+          <li class="ng2-smart-page-item page-item"
+              [ngClass]="{disabled: getPage() == getLast()}">
+            <a class="ng2-smart-page-link page-link page-link-next" href="#"
+              (click)="getPage() == getLast() ? false : next()" aria-label="Next">
+              <span aria-hidden="true">&gt;</span>
+              <span class="sr-only">Next</span>
+            </a>
+          </li>
+          
+          <li class="ng2-smart-page-item page-item"
+          [ngClass]="{disabled: getPage() == getLast()}">
+            <a class="ng2-smart-page-link page-link" href="#"
+            (click)="getPage() == getLast() ? false : paginate(getLast())" aria-label="Last">
+              <span aria-hidden="true">&raquo;</span>
+              <span class="sr-only">Last</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      
+      <nav *ngIf="perPageSelect && perPageSelect.length > 0" class="ng2-smart-pagination-per-page">
+        <label for="per-page">
+          Per Page:
+        </label>
+        <select (change)="onChangePerPage($event)" [(ngModel)]="currentPerPage" id="per-page">
+          <option *ngFor="let item of perPageSelect" [value]="item">{{ item }}</option>
+        </select>
+      </nav>
   `,
         styles: [".ng2-smart-pagination{display:inline-flex;font-size:.875em;padding:0}.ng2-smart-pagination .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}.ng2-smart-pagination .ng2-smart-page-item{display:inline}.ng2-smart-pagination .page-link-next,.ng2-smart-pagination .page-link-prev{font-size:10px}:host{display:flex;justify-content:space-between}:host select{margin:1rem 0 1rem 1rem}:host label{margin:1rem 0 1rem 1rem;line-height:2.5rem}.jump-to-page{width:15%;text-align:center;margin-left:5px;margin-right:5px}input.jump-to-page::-webkit-inner-spin-button,input.jump-to-page::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}.go-btn{margin-right:10px}"]
     })
