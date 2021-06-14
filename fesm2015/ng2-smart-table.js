@@ -1653,9 +1653,10 @@ PagerComponent = __decorate([
         selector: 'ng2-smart-table-pager',
         template: `
     <nav *ngIf="shouldShow()" class="ng2-smart-pagination-nav">
+    Go to page
+    <input type="number" *ngIf="hasJumpToPage" class="form-control jump-to-page" (keyup.enter)="jumpToPage()" [(ngModel)]="jumpPage" placeholder=""/>
+    <button type="button" class="go-btn" (click)="jumpToPage()">Go</button>
       <ul class="ng2-smart-pagination pagination">
-        <input type="number" *ngIf="hasJumpToPage" class="form-control jump-to-page" (keyup.enter)="jumpToPage()" [(ngModel)]="jumpPage" placeholder=""/>
-        
         <li class="ng2-smart-page-item page-item" [ngClass]="{disabled: getPage() == 1}">
           <a class="ng2-smart-page-link page-link" href="#"
           (click)="getPage() == 1 ? false : paginate(1)" aria-label="First">
@@ -1707,7 +1708,7 @@ PagerComponent = __decorate([
       </select>
     </nav>
   `,
-        styles: [".ng2-smart-pagination{display:inline-flex;font-size:.875em;padding:0}.ng2-smart-pagination .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}.ng2-smart-pagination .ng2-smart-page-item{display:inline}.ng2-smart-pagination .page-link-next,.ng2-smart-pagination .page-link-prev{font-size:10px}:host{display:flex;justify-content:space-between}:host select{margin:1rem 0 1rem 1rem}:host label{margin:1rem 0 1rem 1rem;line-height:2.5rem}.jump-to-page{width:24%;text-align:center}"]
+        styles: [".ng2-smart-pagination{display:inline-flex;font-size:.875em;padding:0}.ng2-smart-pagination .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}.ng2-smart-pagination .ng2-smart-page-item{display:inline}.ng2-smart-pagination .page-link-next,.ng2-smart-pagination .page-link-prev{font-size:10px}:host{display:flex;justify-content:space-between}:host select{margin:1rem 0 1rem 1rem}:host label{margin:1rem 0 1rem 1rem;line-height:2.5rem}.jump-to-page{width:15%;text-align:center;margin-left:5px;margin-right:5px}input.jump-to-page::-webkit-inner-spin-button,input.jump-to-page::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}.go-btn{margin-right:10px}"]
     })
 ], PagerComponent);
 
