@@ -23,6 +23,7 @@ export declare class Ng2SmartTableComponent implements OnChanges {
     isPagerDisplay: boolean;
     rowClassFunction: Function;
     paginateSize: number;
+    hasJumpToPage: boolean;
     grid: Grid;
     defaultSettings: Object;
     isAllSelected: boolean;

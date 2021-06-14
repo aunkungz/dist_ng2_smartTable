@@ -5,12 +5,14 @@ export declare class PagerComponent implements OnChanges {
     source: DataSource;
     perPageSelect: any[];
     paginateSize: number;
+    hasJumpToPage: boolean;
     changePage: EventEmitter<any>;
     currentPerPage: any;
     protected pages: Array<any>;
     protected page: number;
     protected count: number;
     protected perPage: number;
+    jumpPage: number;
     protected dataChangedSub: Subscription;
     ngOnChanges(changes: SimpleChanges): void;
     /**
@@ -28,6 +30,7 @@ export declare class PagerComponent implements OnChanges {
     getPages(): Array<any>;
     getLast(): number;
     isPageOutOfBounce(): boolean;
+    jumpToPage(): void;
     initPages(): void;
     onChangePerPage(event: any): void;
 }
